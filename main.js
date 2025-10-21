@@ -18,28 +18,32 @@ const keys = {
 };
 
 const town1 = new Image();
-town1.src = './assets/Sea_Breeze_Town.png';
+town1.src = './assets/Towns/Sea_Breeze/Sea_Breeze_Town.png';
+
+const town1F = new Image();
+town1F.src = './assets/Towns/Sea_Breeze/F-Sea_Breeze_Town.png';
 
 const playerImage = new Image();
 playerImage.src = './assets/Crys.png';
 
+// Screen size
 canvas.width = 1024;
 canvas.height = 576;
-
-const collisionsMap = [];
-
-// Add each row from the collisions array to collisionsMap[]
-for (let i = 0; i < collisions.length; i += 70) {
-    collisionsMap.push(collisions.slice(i, i + 70));
-};
-
-const boundaries = [];
 
 // Camera (and character) placement
 const offset = {
     x: -864,
     y: -1152
 };
+
+const collisionsMap = [];
+
+// Add each row from collisions[] to collisionsMap[]
+for (let i = 0; i < collisions.length; i += 70) {
+    collisionsMap.push(collisions.slice(i, i + 70));
+};
+
+const boundaries = [];
 
 // get the coordinates from every collision in
 // collisionMap[] and adds to boundaries[]
@@ -78,7 +82,16 @@ const background = new Sprite({
     scale: 4
 });
 
-const movables = [background, ...boundaries]
+const foreground = new Sprite({
+    position: {
+        x: offset.x,
+        y: offset.y
+    },
+    image: town1F,
+    scale: 4
+});
+
+const movables = [background, foreground, ...boundaries]
 
 function rectangularCollision({ rectangle1, rectangle2 }) {
     return (
@@ -100,6 +113,8 @@ function animate() {
     // });
 
     player.draw(c);
+
+    foreground.draw(c);
 
     // gradually moves the movables until player reaches the targeted tile
     if (isPlayerMoving && lastKey === 'w') {
@@ -154,7 +169,7 @@ function movePlayer(corX, corY) {
     let canMoveDir = true;
 
     // custom hitbox for player
-    // for dealing with collisions
+    // added "imprecision" for dealing with collisions
     const hitbox = {
         position: {
             x: player.position.x + 16,
