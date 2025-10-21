@@ -8,6 +8,7 @@ const c = canvas.getContext('2d');
 // Global variables
 let isPlayerMoving = false;
 let lastKey = '';
+let animationTimer = 0;
 let targetX = 0;
 let targetY = 0;
 const keys = {
@@ -68,10 +69,13 @@ const player = new Sprite({
         y: canvas.height / 2 - 64 / 2,
     },
     image: playerImage,
-    framesH: 4,
-    framesV: 4,
+    frameH: 0,
+    frameV: 0,
+    frameAmountH: 4,
+    frameAmountV: 4,
     scale: 4
 });
+
 
 const background = new Sprite({
     position: {
@@ -105,7 +109,6 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 function animate() {
     window.requestAnimationFrame(animate)
     c.imageSmoothingEnabled = false;
-
     background.draw(c);
 
     // boundaries.forEach(boundary => {
@@ -116,27 +119,34 @@ function animate() {
 
     foreground.draw(c);
 
+    const animationSpeed = 8;
+
+    if (isPlayerMoving) {
+        animationTimer++;
+        player.frameH = Math.floor(animationTimer / animationSpeed) % player.frameAmountH;
+    }
+
     // gradually moves the movables until player reaches the targeted tile
     if (isPlayerMoving && lastKey === 'w') {
-        movables.forEach(movable => { movable.position.y += 4 })
+        movables.forEach(movable => { movable.position.y += 4 });
         if (background.position.y >= targetY) {
             isPlayerMoving = false;
         }
     }
     else if (isPlayerMoving && lastKey === 'a') {
-        movables.forEach(movable => { movable.position.x += 4 })
+        movables.forEach(movable => { movable.position.x += 4 });
         if (background.position.x >= targetX) {
             isPlayerMoving = false;
         }
     }
     else if (isPlayerMoving && lastKey === 's') {
-        movables.forEach(movable => { movable.position.y -= 4 })
+        movables.forEach(movable => { movable.position.y -= 4 });
         if (background.position.y <= targetY) {
             isPlayerMoving = false;
         }
     }
     else if (isPlayerMoving && lastKey === 'd') {
-        movables.forEach(movable => { movable.position.x -= 4 })
+        movables.forEach(movable => { movable.position.x -= 4 });
         if (background.position.x <= targetX) {
             isPlayerMoving = false;
         }
@@ -144,17 +154,23 @@ function animate() {
 
     // sets player's target tile based on what key was pressed
     if (!isPlayerMoving) {
+
+
         if (keys.w.pressed) {
             lastKey = 'w';
+            player.frameV = 3;
             movePlayer(0, 64);
         } else if (keys.a.pressed) {
             lastKey = 'a';
+            player.frameV = 1;
             movePlayer(64, 0);
         } else if (keys.s.pressed) {
             lastKey = 's';
+            player.frameV = 0;
             movePlayer(0, -64);
         } else if (keys.d.pressed) {
             lastKey = 'd';
+            player.frameV = 2;
             movePlayer(-64, 0);
         }
     }
