@@ -125,23 +125,23 @@ function animate() {
     if (!isPlayerMoving) {
         if (keys.w.pressed) {
             lastKey = 'w';
-            movePlayer('w', 0, 64);
+            movePlayer(0, 64);
         } else if (keys.a.pressed) {
             lastKey = 'a';
-            movePlayer('a', 64, 0);
+            movePlayer(64, 0);
         } else if (keys.s.pressed) {
             lastKey = 's';
-            movePlayer('s', 0, -64);
+            movePlayer(0, -64);
         } else if (keys.d.pressed) {
             lastKey = 'd';
-            movePlayer('d', -64, 0);
+            movePlayer(-64, 0);
         }
     }
 
 };
 animate();
 
-function movePlayer(key, corX, corY) {
+function movePlayer(corX, corY) {
     let canMoveDir = true;
 
     const hitbox = {
