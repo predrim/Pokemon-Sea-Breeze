@@ -5,11 +5,11 @@ import { Boundary } from "./js/Boundary.js";
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
+// Global variables
 let isPlayerMoving = false;
 let lastKey = '';
 let targetX = 0;
 let targetY = 0;
-
 const keys = {
     w: { pressed: false },
     a: { pressed: false },
@@ -17,20 +17,32 @@ const keys = {
     d: { pressed: false },
 };
 
+const town1 = new Image();
+town1.src = './assets/Sea_Breeze_Town.png';
+
+const playerImage = new Image();
+playerImage.src = './assets/Crys.png';
+
 canvas.width = 1024;
 canvas.height = 576;
 
 const collisionsMap = [];
+
+// Add each row from the collisions array to collisionsMap[]
 for (let i = 0; i < collisions.length; i += 70) {
     collisionsMap.push(collisions.slice(i, i + 70));
 };
 
 const boundaries = [];
+
+// Camera (and character) placement
 const offset = {
     x: -864,
     y: -1152
 };
 
+// get the coordinates from every collision in
+// collisionMap[] and adds to boundaries[]
 collisionsMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
         if (symbol !== 0) {
@@ -45,13 +57,6 @@ collisionsMap.forEach((row, i) => {
         }
     })
 });
-
-const town1 = new Image();
-town1.src = './assets/Sea_Breeze_Town.png';
-console.log(town1);
-
-const playerImage = new Image();
-playerImage.src = './assets/Crys.png';
 
 const player = new Sprite({
     position: {
@@ -84,7 +89,6 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     )
 }
 
-
 function animate() {
     window.requestAnimationFrame(animate)
     c.imageSmoothingEnabled = false;
@@ -97,6 +101,7 @@ function animate() {
 
     player.draw(c);
 
+    // gradually moves the movables until player reaches the targeted tile
     if (isPlayerMoving && lastKey === 'w') {
         movables.forEach(movable => { movable.position.y += 4 })
         if (background.position.y >= targetY) {
@@ -122,6 +127,7 @@ function animate() {
         }
     }
 
+    // sets player's target tile based on what key was pressed
     if (!isPlayerMoving) {
         if (keys.w.pressed) {
             lastKey = 'w';
@@ -141,9 +147,14 @@ function animate() {
 };
 animate();
 
+
+// sets player target tile for moving
+// stops player from moving in that direction if a boundary is detected
 function movePlayer(corX, corY) {
     let canMoveDir = true;
 
+    // custom hitbox for player
+    // for dealing with collisions
     const hitbox = {
         position: {
             x: player.position.x + 16,
@@ -165,7 +176,6 @@ function movePlayer(corX, corY) {
             }
         })
         ) {
-            console.log("colliding");
             canMoveDir = false;
             break;
         }
