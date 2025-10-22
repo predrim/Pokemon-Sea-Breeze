@@ -155,7 +155,6 @@ function animate() {
     // sets player's target tile based on what key was pressed
     if (!isPlayerMoving) {
 
-
         if (keys.w.pressed) {
             lastKey = 'w';
             player.frameV = 3;
@@ -174,7 +173,6 @@ function animate() {
             movePlayer(-64, 0);
         }
     }
-
 };
 animate();
 
