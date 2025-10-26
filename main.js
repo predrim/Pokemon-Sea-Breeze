@@ -2,13 +2,19 @@ import { Sprite } from "./js/Sprite.js";
 
 import { Boundary } from "./js/Boundary.js";
 
+import { dialogues } from "./js/data/Towns/Sea_Breeze/dialogues.js";
+
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
+
+const txtBoxElement = document.getElementById('txt-box');
+const txtElement = document.getElementById('txt');
 
 // Global variables
 let isPlayerMoving = false;
 let lastKey = '';
 let animationTimer = 0;
+let isDialogueActive = false;
 let targetX = 0;
 let targetY = 0;
 const keys = {
@@ -37,31 +43,49 @@ const offset = {
     y: -1152
 };
 
+
+// copy every row from tilesArray and pushes them into arrayMap
+function copyRows(arrayMap, tilesArray) {
+    for (let i = 0; i < tilesArray.length; i += 70) {
+        arrayMap.push(tilesArray.slice(i, i + 70));
+    };
+}
+
 const collisionsMap = [];
-
-// Add each row from collisions[] to collisionsMap[]
-for (let i = 0; i < collisions.length; i += 70) {
-    collisionsMap.push(collisions.slice(i, i + 70));
-};
-
+copyRows(collisionsMap, collisions);
 const boundaries = [];
 
-// get the coordinates from every collision in
-// collisionMap[] and adds to boundaries[]
-collisionsMap.forEach((row, i) => {
-    row.forEach((symbol, j) => {
-        if (symbol !== 0) {
-            boundaries.push(
-                new Boundary({
+const encountersMap = [];
+copyRows(encountersMap, encounters);
+const encounterTiles = [];
+
+const interactionsMap = [];
+copyRows(interactionsMap, interactions);
+const interactables = [];
+
+// makes Boundaries based on the coordinates from each tile in
+// arrayMap[] and adds them to rowsArray[]
+function makeBoundaries(arrayMap, rowsArray) {
+    arrayMap.forEach((row, i) => {
+        row.forEach((symbol, j) => {
+            if (symbol !== 0) {
+                const boundary = new Boundary({
                     position: {
                         x: j * Boundary.width + offset.x,
                         y: i * Boundary.height + offset.y
                     }
                 })
-            )
-        }
-    })
-});
+                boundary.symbol = symbol;
+
+                rowsArray.push(boundary);
+            }
+        })
+    });
+}
+
+makeBoundaries(collisionsMap, boundaries);
+makeBoundaries(encountersMap, encounterTiles);
+makeBoundaries(interactionsMap, interactables);
 
 const player = new Sprite({
     position: {
@@ -75,7 +99,6 @@ const player = new Sprite({
     frameAmountV: 4,
     scale: 4
 });
-
 
 const background = new Sprite({
     position: {
@@ -95,7 +118,7 @@ const foreground = new Sprite({
     scale: 4
 });
 
-const movables = [background, foreground, ...boundaries]
+const movables = [background, foreground, ...boundaries, ...encounterTiles, ...interactables];
 
 function rectangularCollision({ rectangle1, rectangle2 }) {
     return (
@@ -115,62 +138,69 @@ function animate() {
     //     boundary.draw(c);
     // });
 
+    // encounterTiles.forEach(encounterTile => {
+    //     encounterTile.draw(c);
+    // });
+
     player.draw(c);
 
     foreground.draw(c);
 
     const animationSpeed = 8;
 
-    if (isPlayerMoving) {
-        animationTimer++;
-        player.frameH = Math.floor(animationTimer / animationSpeed) % player.frameAmountH;
-    }
+    if (!isDialogueActive) {
 
-    // gradually moves the movables until player reaches the targeted tile
-    if (isPlayerMoving && lastKey === 'w') {
-        movables.forEach(movable => { movable.position.y += 4 });
-        if (background.position.y >= targetY) {
-            isPlayerMoving = false;
+        if (isPlayerMoving) {
+            animationTimer++;
+            player.frameH = Math.floor(animationTimer / animationSpeed) % player.frameAmountH;
         }
-    }
-    else if (isPlayerMoving && lastKey === 'a') {
-        movables.forEach(movable => { movable.position.x += 4 });
-        if (background.position.x >= targetX) {
-            isPlayerMoving = false;
-        }
-    }
-    else if (isPlayerMoving && lastKey === 's') {
-        movables.forEach(movable => { movable.position.y -= 4 });
-        if (background.position.y <= targetY) {
-            isPlayerMoving = false;
-        }
-    }
-    else if (isPlayerMoving && lastKey === 'd') {
-        movables.forEach(movable => { movable.position.x -= 4 });
-        if (background.position.x <= targetX) {
-            isPlayerMoving = false;
-        }
-    }
 
-    // sets player's target tile based on what key was pressed
-    if (!isPlayerMoving) {
+        // gradually moves the movables until player reaches the targeted tile
+        if (isPlayerMoving && lastKey === 'w') {
+            movables.forEach(movable => { movable.position.y += 4 });
+            if (background.position.y >= targetY) {
+                isPlayerMoving = false;
+            }
+        }
+        else if (isPlayerMoving && lastKey === 'a') {
+            movables.forEach(movable => { movable.position.x += 4 });
+            if (background.position.x >= targetX) {
+                isPlayerMoving = false;
+            }
+        }
+        else if (isPlayerMoving && lastKey === 's') {
+            movables.forEach(movable => { movable.position.y -= 4 });
+            if (background.position.y <= targetY) {
+                isPlayerMoving = false;
+            }
+        }
+        else if (isPlayerMoving && lastKey === 'd') {
+            movables.forEach(movable => { movable.position.x -= 4 });
+            if (background.position.x <= targetX) {
+                isPlayerMoving = false;
+            }
+        }
 
-        if (keys.w.pressed) {
-            lastKey = 'w';
-            player.frameV = 3;
-            movePlayer(0, 64);
-        } else if (keys.a.pressed) {
-            lastKey = 'a';
-            player.frameV = 1;
-            movePlayer(64, 0);
-        } else if (keys.s.pressed) {
-            lastKey = 's';
-            player.frameV = 0;
-            movePlayer(0, -64);
-        } else if (keys.d.pressed) {
-            lastKey = 'd';
-            player.frameV = 2;
-            movePlayer(-64, 0);
+        // sets player's target tile based on what key was pressed
+        if (!isPlayerMoving) {
+
+            if (keys.w.pressed) {
+                lastKey = 'w';
+                player.frameV = 3;
+                movePlayer(0, 64);
+            } else if (keys.a.pressed) {
+                lastKey = 'a';
+                player.frameV = 1;
+                movePlayer(64, 0);
+            } else if (keys.s.pressed) {
+                lastKey = 's';
+                player.frameV = 0;
+                movePlayer(0, -64);
+            } else if (keys.d.pressed) {
+                lastKey = 'd';
+                player.frameV = 2;
+                movePlayer(-64, 0);
+            }
         }
     }
 };
@@ -210,6 +240,17 @@ function movePlayer(corX, corY) {
         }
     }
 
+    for (let i = 0; i < encounterTiles.length; i++) {
+        const encounterTile = encounterTiles[i];
+        if (rectangularCollision({
+            rectangle1: hitbox,
+            rectangle2: encounterTile
+        })
+        ) {
+            break;
+        }
+    }
+
     if (canMoveDir) {
         isPlayerMoving = true;
         targetY = background.position.y + corY;
@@ -234,6 +275,56 @@ window.addEventListener('keydown', (e) => {
         case 'd':
             keys.d.pressed = true;
             break;
+
+        case ' ':
+            if (isDialogueActive) {
+                isDialogueActive = false;
+                txtBoxElement.style.display = 'none';
+                break;
+            }
+
+            const hitbox = {
+                position: {
+                    x: player.position.x + 16,
+                    y: player.position.y + 16
+                },
+                width: 32,
+                height: 32
+            };
+
+            const interactionTarget = {
+                ...hitbox,
+                position: { ...hitbox.position }
+            };
+
+            if (player.frameV === 0) interactionTarget.position.y += 64;
+            else if (player.frameV === 1) interactionTarget.position.x -= 64;
+            else if (player.frameV === 2) interactionTarget.position.x += 64;
+            else if (player.frameV === 3) interactionTarget.position.y -= 64;
+
+            for (let i = 0; i < interactables.length; i++) {
+                const interactable = interactables[i];
+
+                if (rectangularCollision({
+                    rectangle1: interactionTarget,
+                    rectangle2: interactable
+                })
+                ) {
+                    // Get the dialogue text from the object
+                    const dialogue = dialogues[interactable.symbol];
+
+                    // Check if a dialogue exists for this symbol
+                    if (dialogue) {
+                        txtElement.innerText = dialogue;
+                        isDialogueActive = true;
+                        txtBoxElement.style.display = 'block';
+
+                        isDialogueActive = true;
+                    };
+
+                    break;
+                }
+            }
     }
 });
 

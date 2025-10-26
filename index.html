@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body {
-            background-color: black;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     
-    <canvas></canvas>
+    <div id="gameContainer">
+        <canvas></canvas>
+        <div id="txt-box" style="display: none">
+            <p id="txt"></p>
+        </div>
+    </div>
 
     <script src="js/data/Towns/Sea_Breeze/collisions.js"></script>
+    <script src="js/data/Towns/Sea_Breeze/interactions.js"></script>
+    <script src="js/data/Towns/Sea_Breeze/encounters.js"></script>
     <script type="module" src="main.js"></script>
 </body>
+
 </html>
