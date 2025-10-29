@@ -1,8 +1,7 @@
 import { Sprite } from "./js/Sprite.js";
-
 import { Boundary } from "./js/Boundary.js";
-
 import { dialogues } from "./js/data/Towns/Sea_Breeze/dialogues.js";
+import { battleScene } from "./js/BattleScene.js";
 
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
@@ -13,10 +12,12 @@ const txtElement = document.getElementById('txt');
 // Global variables
 let isPlayerMoving = false;
 let lastKey = '';
-let animationTimer = 0;
+let walkAnimationTimer = 0;
+let transitionTimer = 0;
 let isDialogueActive = false;
 let targetX = 0;
 let targetY = 0;
+let encounterChance = 15;
 const keys = {
     w: { pressed: false },
     a: { pressed: false },
@@ -33,6 +34,9 @@ town1F.src = './assets/Towns/Sea_Breeze/F-Sea_Breeze_Town.png';
 const playerImage = new Image();
 playerImage.src = './assets/Crys.png';
 
+const battleTransition = new Image();
+battleTransition.src = './assets/Transitions/encounterWild.png';
+
 // Screen size
 canvas.width = 1024;
 canvas.height = 576;
@@ -42,7 +46,6 @@ const offset = {
     x: -864,
     y: -1152
 };
-
 
 // copy every row from tilesArray and pushes them into arrayMap
 function copyRows(arrayMap, tilesArray) {
@@ -100,6 +103,17 @@ const player = new Sprite({
     scale: 4
 });
 
+const bttlTransAnim = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    image: battleTransition,
+    frameH: 0,
+    frameAmountH: 28,
+    scale: 2
+});
+
 const background = new Sprite({
     position: {
         x: offset.x,
@@ -129,6 +143,10 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     )
 }
 
+const battle = {
+    initiated: false
+}
+
 function animate() {
     window.requestAnimationFrame(animate)
     c.imageSmoothingEnabled = false;
@@ -143,41 +161,45 @@ function animate() {
     // });
 
     player.draw(c);
-
     foreground.draw(c);
 
     const animationSpeed = 8;
-
-    if (!isDialogueActive) {
+    
+    if (!isDialogueActive && !battle.initiated) {
 
         if (isPlayerMoving) {
-            animationTimer++;
-            player.frameH = Math.floor(animationTimer / animationSpeed) % player.frameAmountH;
+            walkAnimationTimer++;
+            player.frameH = Math.floor(walkAnimationTimer / animationSpeed) % player.frameAmountH;
         }
+
 
         // gradually moves the movables until player reaches the targeted tile
         if (isPlayerMoving && lastKey === 'w') {
             movables.forEach(movable => { movable.position.y += 4 });
             if (background.position.y >= targetY) {
                 isPlayerMoving = false;
+                checkForEncounter();
             }
         }
         else if (isPlayerMoving && lastKey === 'a') {
             movables.forEach(movable => { movable.position.x += 4 });
             if (background.position.x >= targetX) {
                 isPlayerMoving = false;
+                checkForEncounter();
             }
         }
         else if (isPlayerMoving && lastKey === 's') {
             movables.forEach(movable => { movable.position.y -= 4 });
             if (background.position.y <= targetY) {
                 isPlayerMoving = false;
+                checkForEncounter();
             }
         }
         else if (isPlayerMoving && lastKey === 'd') {
             movables.forEach(movable => { movable.position.x -= 4 });
             if (background.position.x <= targetX) {
                 isPlayerMoving = false;
+                checkForEncounter();
             }
         }
 
@@ -203,9 +225,26 @@ function animate() {
             }
         }
     }
+    
+    if (battle.initiated) {
+        const transitionAnimationSpeed = 2;
+
+        if (bttlTransAnim.frameH < bttlTransAnim.frameAmountH) {
+            transitionTimer++;
+            bttlTransAnim.frameH = Math.floor(transitionTimer / transitionAnimationSpeed);
+            bttlTransAnim.draw(c);
+        } else {
+            bttlTransAnim.draw(c);
+            battleScene();
+        }
+    }
 };
 animate();
 
+function checkProbability(chancePercentage) {
+    chancePercentage /= 100;
+    return Math.random() < chancePercentage;
+};
 
 // sets player target tile for moving
 // stops player from moving in that direction if a boundary is detected
@@ -221,7 +260,7 @@ function movePlayer(corX, corY) {
         },
         width: 32,
         height: 32
-    }
+    };
 
     for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i];
@@ -240,21 +279,41 @@ function movePlayer(corX, corY) {
         }
     }
 
+    if (canMoveDir) {
+        isPlayerMoving = true;
+        targetY = background.position.y + corY;
+        targetX = background.position.x + corX;
+    }
+}
+
+function checkForEncounter() {
+    // custom hitbox for player
+    // added "imprecision" for dealing with collisions
+    const hitbox = {
+        position: {
+            x: player.position.x + 16,
+            y: player.position.y + 16
+        },
+        width: 32,
+        height: 32
+    }
+
     for (let i = 0; i < encounterTiles.length; i++) {
         const encounterTile = encounterTiles[i];
         if (rectangularCollision({
             rectangle1: hitbox,
             rectangle2: encounterTile
+            
         })
         ) {
+            if (checkProbability(encounterChance) && !battle.initiated) {
+                console.log('A wild pokémon appears!');
+                battle.initiated = true;
+                transitionTimer = 0;
+                bttlTransAnim.frameH = 0;
+            }
             break;
         }
-    }
-
-    if (canMoveDir) {
-        isPlayerMoving = true;
-        targetY = background.position.y + corY;
-        targetX = background.position.x + corX;
     }
 }
 

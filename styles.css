@@ -15,7 +15,7 @@ body {
 
 canvas {
     width: 100%;
-    image-rendering: pixelated;
+
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
@@ -31,13 +31,12 @@ canvas {
     background-color: #F8F8F8;
     border: 5.0vmin solid;
     border-image-source: url('assets/Windowskins/speech\ 1.png');
-    border-image-slice: 18;
+    border-image-slice: 16;
     border-image-width: 5.0vmin;
     border-image-repeat: repeat;
 
-    box-shadow: 10px 10px black;
- 
-    image-rendering: pixelated;
+    box-shadow: 12px 12px black;
+
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
@@ -55,4 +54,5 @@ canvas {
     margin-right: 2%; 
     line-height: 1.7;
     color: black;
+    filter: blur(0.5px);
 }
