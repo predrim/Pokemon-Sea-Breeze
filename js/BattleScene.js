@@ -1,8 +1,18 @@
+import { Sprite } from "./Sprite.js";
 
+const battleBackImg = new Image();
+battleBackImg.src = '../assets/Battlebacks/general_bg.png';
 
-export function battleScene() {
-    window.requestAnimationFrame(battleScene);
-    this.c.imageSmoothingEnabled = false;
+const battleBackground = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    image: battleBackImg,
+    scale: 4
+});
 
-
+export function battleScene(c) {
+    c.imageSmoothingEnabled = false;
+    battleBackground.draw(c);
 };

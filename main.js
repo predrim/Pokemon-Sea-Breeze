@@ -14,6 +14,7 @@ let isPlayerMoving = false;
 let lastKey = '';
 let walkAnimationTimer = 0;
 let transitionTimer = 0;
+let battleDelayTimer = 0;
 let isDialogueActive = false;
 let targetX = 0;
 let targetY = 0;
@@ -144,28 +145,21 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 }
 
 const battle = {
-    initiated: false
+    initiated: false,
+    delayComplete: false
 }
 
 function animate() {
     window.requestAnimationFrame(animate)
     c.imageSmoothingEnabled = false;
-    background.draw(c);
-
-    // boundaries.forEach(boundary => {
-    //     boundary.draw(c);
-    // });
-
-    // encounterTiles.forEach(encounterTile => {
-    //     encounterTile.draw(c);
-    // });
-
-    player.draw(c);
-    foreground.draw(c);
-
-    const animationSpeed = 8;
     
     if (!isDialogueActive && !battle.initiated) {
+
+        background.draw(c);
+        player.draw(c);
+        foreground.draw(c);
+    
+        const animationSpeed = 8;
 
         if (isPlayerMoving) {
             walkAnimationTimer++;
@@ -226,7 +220,7 @@ function animate() {
         }
     }
     
-    if (battle.initiated) {
+    else if (battle.initiated) {
         const transitionAnimationSpeed = 2;
 
         if (bttlTransAnim.frameH < bttlTransAnim.frameAmountH) {
@@ -234,8 +228,18 @@ function animate() {
             bttlTransAnim.frameH = Math.floor(transitionTimer / transitionAnimationSpeed);
             bttlTransAnim.draw(c);
         } else {
-            bttlTransAnim.draw(c);
-            battleScene();
+            c.fillStyle = '#010101';
+            c.fillRect(0,0, canvas.width, canvas.height);
+
+            if (!battle.delayComplete) {
+                battleDelayTimer++;
+                
+                if (battleDelayTimer > 60) {
+                    battle.delayComplete = true;
+                }
+            } else {
+                battleScene(c);
+            }
         }
     }
 };
@@ -311,6 +315,8 @@ function checkForEncounter() {
                 battle.initiated = true;
                 transitionTimer = 0;
                 bttlTransAnim.frameH = 0;
+                battleDelayTimer = 0;
+                battle.delayComplete = false;
             }
             break;
         }
