@@ -1,4 +1,4 @@
-import { Sprite } from "./Sprite.js";
+import { Sprite } from "../classes/Sprite.js";
 
 const battleBackImg = new Image();
 battleBackImg.src = '../assets/Battlebacks/general_bg.png';

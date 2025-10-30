@@ -1,15 +1,26 @@
-import { Sprite } from "./js/Sprite.js";
-import { Boundary } from "./js/Boundary.js";
-import { dialogues } from "./js/data/Towns/Sea_Breeze/dialogues.js";
-import { battleScene } from "./js/BattleScene.js";
+// Core Imports
+import { Sprite } from "../classes/Sprite.js";
+import { Boundary } from "../classes/Boundary.js";
+import { battleScene } from "../scenes/BattleScene.js";
+import { copyRows } from "./utils.js";
 
+// Data Imports
+import { dialogues } from "../data/Towns/Sea_Breeze/dialogues.js";
+import { collisions } from "../data/Towns/Sea_Breeze/collisions.js"
+import { interactions } from "../data/Towns/Sea_Breeze/interactions.js"
+import { encounters } from "../data/Towns/Sea_Breeze/encounters.js"
+
+// Canvas Setup
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
+canvas.width = 1024;
+canvas.height = 576;
 
+// UI Elements
 const txtBoxElement = document.getElementById('txt-box');
 const txtElement = document.getElementById('txt');
 
-// Global variables
+// Global State variables
 let isPlayerMoving = false;
 let lastKey = '';
 let walkAnimationTimer = 0;
@@ -25,7 +36,12 @@ const keys = {
     s: { pressed: false },
     d: { pressed: false },
 };
+const battle = {
+    initiated: false,
+    delayComplete: false
+};
 
+// Image Assets
 const town1 = new Image();
 town1.src = './assets/Towns/Sea_Breeze/Sea_Breeze_Town.png';
 
@@ -38,37 +54,31 @@ playerImage.src = './assets/Crys.png';
 const battleTransition = new Image();
 battleTransition.src = './assets/Transitions/encounterWild.png';
 
-// Screen size
-canvas.width = 1024;
-canvas.height = 576;
 
-// Camera (and character) placement
+// Camera Offset (controls map positioning relative to player)
 const offset = {
     x: -864,
     y: -1152
 };
 
-// copy every row from tilesArray and pushes them into arrayMap
-function copyRows(arrayMap, tilesArray) {
-    for (let i = 0; i < tilesArray.length; i += 70) {
-        arrayMap.push(tilesArray.slice(i, i + 70));
-    };
-}
-
+// Map Data Conversion
+// convert raw tile data into 2D maps
 const collisionsMap = [];
-copyRows(collisionsMap, collisions);
-const boundaries = [];
+copyRows(collisionsMap, collisions, 70);
+const collisionTiles = [];
 
 const encountersMap = [];
-copyRows(encountersMap, encounters);
+copyRows(encountersMap, encounters, 70);
 const encounterTiles = [];
 
 const interactionsMap = [];
-copyRows(interactionsMap, interactions);
+copyRows(interactionsMap, interactions, 70);
 const interactables = [];
 
-// makes Boundaries based on the coordinates from each tile in
-// arrayMap[] and adds them to rowsArray[]
+/**
+ * Creates "Boundary" objects from tile data.
+ * Each non-zero tile represents an active boundary or trigger.
+ */
 function makeBoundaries(arrayMap, rowsArray) {
     arrayMap.forEach((row, i) => {
         row.forEach((symbol, j) => {
@@ -87,10 +97,14 @@ function makeBoundaries(arrayMap, rowsArray) {
     });
 }
 
-makeBoundaries(collisionsMap, boundaries);
+// Generate all boundaries 
+makeBoundaries(collisionsMap, collisionTiles);
 makeBoundaries(encountersMap, encounterTiles);
 makeBoundaries(interactionsMap, interactables);
 
+// Sprite Definitions
+
+// Player (stationary in the center; Map moves around them)
 const player = new Sprite({
     position: {
         x: canvas.width / 2 - 64 / 2,
@@ -104,6 +118,7 @@ const player = new Sprite({
     scale: 4
 });
 
+// Battle transition animation
 const bttlTransAnim = new Sprite({
     position: {
         x: 0,
@@ -115,6 +130,7 @@ const bttlTransAnim = new Sprite({
     scale: 2
 });
 
+// Map background (boundaries are generated based on it)
 const background = new Sprite({
     position: {
         x: offset.x,
@@ -124,6 +140,7 @@ const background = new Sprite({
     scale: 4
 });
 
+// Map foreground (for tiles displayed above the character)
 const foreground = new Sprite({
     position: {
         x: offset.x,
@@ -133,8 +150,10 @@ const foreground = new Sprite({
     scale: 4
 });
 
-const movables = [background, foreground, ...boundaries, ...encounterTiles, ...interactables];
+// Elements that move with the map
+const movables = [background, foreground, ...collisionTiles, ...encounterTiles, ...interactables];
 
+// Detects rectangular overlap between two objects
 function rectangularCollision({ rectangle1, rectangle2 }) {
     return (
         rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
@@ -144,15 +163,12 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     )
 }
 
-const battle = {
-    initiated: false,
-    delayComplete: false
-}
-
+// ==== Main game loop ====
 function animate() {
     window.requestAnimationFrame(animate)
     c.imageSmoothingEnabled = false;
     
+    // Overworld mode
     if (!isDialogueActive && !battle.initiated) {
 
         background.draw(c);
@@ -166,8 +182,7 @@ function animate() {
             player.frameH = Math.floor(walkAnimationTimer / animationSpeed) % player.frameAmountH;
         }
 
-
-        // gradually moves the movables until player reaches the targeted tile
+        // Gradually moves the world until player reaches targeted position
         if (isPlayerMoving && lastKey === 'w') {
             movables.forEach(movable => { movable.position.y += 4 });
             if (background.position.y >= targetY) {
@@ -201,36 +216,34 @@ function animate() {
         if (!isPlayerMoving) {
 
             if (keys.w.pressed) {
-                lastKey = 'w';
-                player.frameV = 3;
-                movePlayer(0, 64);
+                moveInDirection('w', 3, 0, 64);
             } else if (keys.a.pressed) {
-                lastKey = 'a';
-                player.frameV = 1;
-                movePlayer(64, 0);
+                moveInDirection('a', 1, 64, 0);
             } else if (keys.s.pressed) {
-                lastKey = 's';
-                player.frameV = 0;
-                movePlayer(0, -64);
+                moveInDirection('s', 0, 0, -64);
             } else if (keys.d.pressed) {
-                lastKey = 'd';
-                player.frameV = 2;
-                movePlayer(-64, 0);
+                moveInDirection('d', 2, -64, 0);
             }
         }
-    }
+    } 
+    // End of Overworld mode
     
+
+    // Battle mode
     else if (battle.initiated) {
         const transitionAnimationSpeed = 2;
 
         if (bttlTransAnim.frameH < bttlTransAnim.frameAmountH) {
+            // Play Battle transition
             transitionTimer++;
             bttlTransAnim.frameH = Math.floor(transitionTimer / transitionAnimationSpeed);
             bttlTransAnim.draw(c);
         } else {
+            // Color Screen black before switching to Battle Scene
             c.fillStyle = '#010101';
             c.fillRect(0,0, canvas.width, canvas.height);
 
+            // Delay Battle Scene switch
             if (!battle.delayComplete) {
                 battleDelayTimer++;
                 
@@ -238,6 +251,8 @@ function animate() {
                     battle.delayComplete = true;
                 }
             } else {
+                // End of Battle Transition
+                // Start of Battle
                 battleScene(c);
             }
         }
@@ -245,18 +260,27 @@ function animate() {
 };
 animate();
 
+// Handles directional movement setup
+function moveInDirection(key, frameV, offsetX, offsetY) {
+    lastKey = key;
+    player.frameV = frameV;
+    movePlayer(offsetX, offsetY);
+}
+
+// Returns true or false based on a probability percentage
 function checkProbability(chancePercentage) {
     chancePercentage /= 100;
     return Math.random() < chancePercentage;
 };
 
-// sets player target tile for moving
-// stops player from moving in that direction if a boundary is detected
+/**
+ * Attempts to move the player in a given direction.
+ * Checks collisions with all collision tiles before moving.
+ */
 function movePlayer(corX, corY) {
     let canMoveDir = true;
 
-    // custom hitbox for player
-    // added "imprecision" for dealing with collisions
+    // Player hitbox (smaller than sprite for collision accuracy)
     const hitbox = {
         position: {
             x: player.position.x + 16,
@@ -266,8 +290,9 @@ function movePlayer(corX, corY) {
         height: 32
     };
 
-    for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
+    // Test for collisions ahead
+    for (let i = 0; i < collisionTiles.length; i++) {
+        const boundary = collisionTiles[i];
         if (rectangularCollision({
             rectangle1: hitbox,
             rectangle2: {
@@ -283,6 +308,7 @@ function movePlayer(corX, corY) {
         }
     }
 
+    // Move world if path is clear
     if (canMoveDir) {
         isPlayerMoving = true;
         targetY = background.position.y + corY;
@@ -290,9 +316,12 @@ function movePlayer(corX, corY) {
     }
 }
 
+/**
+ * Checks if player walked into an encounter tile
+ * Possibly triggers a battle if so
+ */
 function checkForEncounter() {
-    // custom hitbox for player
-    // added "imprecision" for dealing with collisions
+    // Player hitbox (smaller than sprite for collision accuracy)
     const hitbox = {
         position: {
             x: player.position.x + 16,
@@ -323,6 +352,8 @@ function checkForEncounter() {
     }
 }
 
+
+// Keyboard Controls
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
@@ -341,6 +372,7 @@ window.addEventListener('keydown', (e) => {
             keys.d.pressed = true;
             break;
 
+        // Spacebar -> Interact or close dialogue
         case ' ':
             if (isDialogueActive) {
                 isDialogueActive = false;
@@ -348,6 +380,7 @@ window.addEventListener('keydown', (e) => {
                 break;
             }
 
+            // Interaction logic
             const hitbox = {
                 position: {
                     x: player.position.x + 16,
@@ -361,12 +394,14 @@ window.addEventListener('keydown', (e) => {
                 ...hitbox,
                 position: { ...hitbox.position }
             };
-
+            
+            // Move interaction hitbox in front of player
             if (player.frameV === 0) interactionTarget.position.y += 64;
             else if (player.frameV === 1) interactionTarget.position.x -= 64;
             else if (player.frameV === 2) interactionTarget.position.x += 64;
             else if (player.frameV === 3) interactionTarget.position.y -= 64;
 
+            // Check if player is facing an interactable object
             for (let i = 0; i < interactables.length; i++) {
                 const interactable = interactables[i];
 
