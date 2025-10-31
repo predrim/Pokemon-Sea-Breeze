@@ -21,6 +21,7 @@ const txtBoxElement = document.getElementById('txt-box');
 const txtElement = document.getElementById('txt');
 
 // Global State variables
+const tileSize = 64;
 let isPlayerMoving = false;
 let lastKey = '';
 let walkAnimationTimer = 0;
@@ -30,6 +31,10 @@ let isDialogueActive = false;
 let targetX = 0;
 let targetY = 0;
 let encounterChance = 15;
+const spawnTile= {
+    x: 22,
+    y: 23
+}
 const keys = {
     w: { pressed: false },
     a: { pressed: false },
@@ -54,11 +59,10 @@ playerImage.src = './assets/Crys.png';
 const battleTransition = new Image();
 battleTransition.src = './assets/Transitions/encounterWild.png';
 
-
 // Camera Offset (controls map positioning relative to player)
 const offset = {
-    x: -864,
-    y: -1152
+    x: -(((spawnTile.x*tileSize) -tileSize/2) - (canvas.width/2)),
+    y: -(((spawnTile.y*tileSize) -tileSize/2) - (canvas.height/2))
 };
 
 // Map Data Conversion
@@ -107,8 +111,8 @@ makeBoundaries(interactionsMap, interactables);
 // Player (stationary in the center; Map moves around them)
 const player = new Sprite({
     position: {
-        x: canvas.width / 2 - 64 / 2,
-        y: canvas.height / 2 - 64 / 2,
+        x: canvas.width / 2 - tileSize / 2,
+        y: canvas.height / 2 - tileSize / 2,
     },
     image: playerImage,
     frameH: 0,
@@ -216,13 +220,13 @@ function animate() {
         if (!isPlayerMoving) {
 
             if (keys.w.pressed) {
-                moveInDirection('w', 3, 0, 64);
+                moveInDirection('w', 3, 0, tileSize);
             } else if (keys.a.pressed) {
-                moveInDirection('a', 1, 64, 0);
+                moveInDirection('a', 1, tileSize, 0);
             } else if (keys.s.pressed) {
-                moveInDirection('s', 0, 0, -64);
+                moveInDirection('s', 0, 0, -tileSize);
             } else if (keys.d.pressed) {
-                moveInDirection('d', 2, -64, 0);
+                moveInDirection('d', 2, -tileSize, 0);
             }
         }
     } 
@@ -396,10 +400,10 @@ window.addEventListener('keydown', (e) => {
             };
             
             // Move interaction hitbox in front of player
-            if (player.frameV === 0) interactionTarget.position.y += 64;
-            else if (player.frameV === 1) interactionTarget.position.x -= 64;
-            else if (player.frameV === 2) interactionTarget.position.x += 64;
-            else if (player.frameV === 3) interactionTarget.position.y -= 64;
+            if (player.frameV === 0) interactionTarget.position.y += tileSize;
+            else if (player.frameV === 1) interactionTarget.position.x -= tileSize;
+            else if (player.frameV === 2) interactionTarget.position.x += tileSize;
+            else if (player.frameV === 3) interactionTarget.position.y -= tileSize;
 
             // Check if player is facing an interactable object
             for (let i = 0; i < interactables.length; i++) {
