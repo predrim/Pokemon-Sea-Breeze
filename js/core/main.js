@@ -31,9 +31,9 @@ let isDialogueActive = false;
 let targetX = 0;
 let targetY = 0;
 let encounterChance = 15;
-const spawnTile= {
-    x: 22,
-    y: 23
+const currentTile= {
+    x: 21,
+    y: 22
 }
 const keys = {
     w: { pressed: false },
@@ -61,30 +61,30 @@ battleTransition.src = './assets/Transitions/encounterWild.png';
 
 // Camera Offset (controls map positioning relative to player)
 const offset = {
-    x: -(((spawnTile.x*tileSize) -tileSize/2) - (canvas.width/2)),
-    y: -(((spawnTile.y*tileSize) -tileSize/2) - (canvas.height/2))
+    x: -((currentTile.x * tileSize + tileSize/2) - (canvas.width/2)),
+    y: -((currentTile.y * tileSize + tileSize/2) - (canvas.height/2))
 };
 
 // Map Data Conversion
 // convert raw tile data into 2D maps
-const collisionsMap = [];
-copyRows(collisionsMap, collisions, 70);
+const collisionsRows = [];
+copyRows(collisionsRows, collisions, 70);
 const collisionTiles = [];
 
-const encountersMap = [];
-copyRows(encountersMap, encounters, 70);
+const encountersRows = [];
+copyRows(encountersRows, encounters, 70);
 const encounterTiles = [];
 
-const interactionsMap = [];
-copyRows(interactionsMap, interactions, 70);
+const interactionsRows = [];
+copyRows(interactionsRows, interactions, 70);
 const interactables = [];
 
 /**
  * Creates "Boundary" objects from tile data.
  * Each non-zero tile represents an active boundary or trigger.
  */
-function makeBoundaries(arrayMap, rowsArray) {
-    arrayMap.forEach((row, i) => {
+function makeBoundaries(RowsArray, triggersArray) {
+    RowsArray.forEach((row, i) => {
         row.forEach((symbol, j) => {
             if (symbol !== 0) {
                 const boundary = new Boundary({
@@ -95,16 +95,16 @@ function makeBoundaries(arrayMap, rowsArray) {
                 })
                 boundary.symbol = symbol;
 
-                rowsArray.push(boundary);
+                triggersArray.push(boundary);
             }
         })
     });
 }
 
 // Generate all boundaries 
-makeBoundaries(collisionsMap, collisionTiles);
-makeBoundaries(encountersMap, encounterTiles);
-makeBoundaries(interactionsMap, interactables);
+makeBoundaries(collisionsRows, collisionTiles);
+makeBoundaries(encountersRows, encounterTiles);
+makeBoundaries(interactionsRows, interactables);
 
 // Sprite Definitions
 
@@ -191,6 +191,7 @@ function animate() {
             movables.forEach(movable => { movable.position.y += 4 });
             if (background.position.y >= targetY) {
                 isPlayerMoving = false;
+                currentTile.y--;
                 checkForEncounter();
             }
         }
@@ -198,6 +199,7 @@ function animate() {
             movables.forEach(movable => { movable.position.x += 4 });
             if (background.position.x >= targetX) {
                 isPlayerMoving = false;
+                currentTile.x--;
                 checkForEncounter();
             }
         }
@@ -205,6 +207,7 @@ function animate() {
             movables.forEach(movable => { movable.position.y -= 4 });
             if (background.position.y <= targetY) {
                 isPlayerMoving = false;
+                currentTile.y++;
                 checkForEncounter();
             }
         }
@@ -212,6 +215,7 @@ function animate() {
             movables.forEach(movable => { movable.position.x -= 4 });
             if (background.position.x <= targetX) {
                 isPlayerMoving = false;
+                currentTile.x++;
                 checkForEncounter();
             }
         }
@@ -220,13 +224,13 @@ function animate() {
         if (!isPlayerMoving) {
 
             if (keys.w.pressed) {
-                moveInDirection('w', 3, 0, tileSize);
+                moveInDirection('w', 3, 0, 1);
             } else if (keys.a.pressed) {
-                moveInDirection('a', 1, tileSize, 0);
+                moveInDirection('a', 1, 1, 0);
             } else if (keys.s.pressed) {
-                moveInDirection('s', 0, 0, -tileSize);
+                moveInDirection('s', 0, 0, -1);
             } else if (keys.d.pressed) {
-                moveInDirection('d', 2, -tileSize, 0);
+                moveInDirection('d', 2, -1, 0);
             }
         }
     } 
@@ -265,10 +269,10 @@ function animate() {
 animate();
 
 // Handles directional movement setup
-function moveInDirection(key, frameV, offsetX, offsetY) {
+function moveInDirection(key, frameV, moveX, moveY) {
     lastKey = key;
     player.frameV = frameV;
-    movePlayer(offsetX, offsetY);
+    movePlayer(moveX, moveY);
 }
 
 // Returns true or false based on a probability percentage
@@ -281,9 +285,9 @@ function checkProbability(chancePercentage) {
  * Attempts to move the player in a given direction.
  * Checks collisions with all collision tiles before moving.
  */
-function movePlayer(corX, corY) {
+function movePlayer(moveX, moveY) {
     let canMoveDir = true;
-
+    
     // Player hitbox (smaller than sprite for collision accuracy)
     const hitbox = {
         position: {
@@ -297,13 +301,16 @@ function movePlayer(corX, corY) {
     // Test for collisions ahead
     for (let i = 0; i < collisionTiles.length; i++) {
         const boundary = collisionTiles[i];
+
+        const predictBoundaryPos = {
+            x: boundary.position.x + (moveX * tileSize),
+            y: boundary.position.y + (moveY * tileSize)
+        }
+
         if (rectangularCollision({
             rectangle1: hitbox,
             rectangle2: {
-                ...boundary, position: {
-                    x: boundary.position.x + corX,
-                    y: boundary.position.y + corY
-                }
+                ...boundary, position: predictBoundaryPos
             }
         })
         ) {
@@ -315,8 +322,8 @@ function movePlayer(corX, corY) {
     // Move world if path is clear
     if (canMoveDir) {
         isPlayerMoving = true;
-        targetY = background.position.y + corY;
-        targetX = background.position.x + corX;
+        targetX = background.position.x + (moveX * tileSize);
+        targetY = background.position.y + (moveY * tileSize);
     }
 }
 
