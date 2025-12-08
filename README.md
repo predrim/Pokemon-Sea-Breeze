@@ -1,7 +1,8 @@
 # Pokemon-Sea-Breeze
 Pokémon Fan Game made with JavaScript, HTML and CSS
 
-To run the game, you need a local server, like Live Server (VSCode extension) or Node Serve.
+Live Preview: https://predrim.github.io/Pokemon-Sea-Breeze/ <br>
+To run the game locally, you need a local server, like Live Server (VSCode extension) or Node Serve.
 
 
 Commands: <br>
