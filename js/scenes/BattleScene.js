@@ -12,7 +12,7 @@ const battleBackground = new Sprite({
     scale: 4
 });
 
-export function battleScene(c) {
-    c.imageSmoothingEnabled = false;
-    battleBackground.draw(c);
+export function battleScene(ctx) {
+    ctx.imageSmoothingEnabled = false;
+    battleBackground.draw(ctx);
 };
