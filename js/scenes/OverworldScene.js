@@ -17,7 +17,7 @@ export class OverworldScene {
         foregroundImage.src = config.foregroundSrc;
 
         const playerImage = new Image();
-        playerImage.src = '../assets/Characters/Players/Crys.png';
+        playerImage.src = './assets/Characters/Players/Crys.png';
 
         // --- 3. STATE ---
         this.isPlayerMoving = false;

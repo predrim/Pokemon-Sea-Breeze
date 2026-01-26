@@ -1,5 +1,5 @@
 import { Sprite } from "../classes/Sprite.js";
-import { WORLD_SCALE, CANVAS_HEIGHT, CANVAS_WIDTH } from "../core/globalConfig.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../core/globalConfig.js";
 import { wait } from "../core/utils.js";
 
 export class BattleTransitionScene {
@@ -25,7 +25,7 @@ export class BattleTransitionScene {
             image: image,
             frameH: 0,
             frameAmountH: 28,
-            scale: WORLD_SCALE
+            scale: 2.5
         });
     }
 

@@ -1,7 +1,8 @@
 import { Sprite } from "../classes/Sprite.js";
+import { WORLD_SCALE } from "../core/globalConfig.js";
 
 const battleBackImg = new Image();
-battleBackImg.src = '../assets/Battlebacks/general_bg.png';
+battleBackImg.src = './assets/Battlebacks/general_bg.png';
 
 const battleBackground = new Sprite({
     position: {
@@ -9,7 +10,7 @@ const battleBackground = new Sprite({
         y: 0
     },
     image: battleBackImg,
-    scale: 4
+    scale: WORLD_SCALE
 });
 
 export function battleScene(ctx) {
