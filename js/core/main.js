@@ -3,7 +3,7 @@ import { OverworldScene } from "../scenes/OverworldScene.js";
 import { BattleTransitionScene } from "../scenes/BattleTransition.js";
 import { AssetLoader } from "../classes/AssetLoader.js";
 import { maps } from "../../data/maps.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, WORLD_SCALE} from "./globalConfig.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CURRENT_MAP} from "./globalConfig.js";
 
 // --- CANVAS SETUP ---
 const canvas = document.querySelector('canvas');
@@ -27,7 +27,7 @@ const keys = {
 async function initGame() {
     // Load the data for map
     console.log("Loading Map...");
-    const mapConfig = await assetLoader.loadMap(maps.Sea_Breeze);
+    const mapConfig = await assetLoader.loadMap(maps[CURRENT_MAP]);
     
     // Battle Callback
     mapConfig.onBattleStart = () => {
@@ -69,10 +69,10 @@ window.addEventListener('keydown', (e) => {
 
         case ' ':
             if (currentScene && currentScene.checkForInteraction) {
-                // If the dialogue box is open, close it
                 const txtBox = document.getElementById('txt-box');
-                if (txtBox.style.display === 'block') {
-                    txtBox.style.display = 'none';
+                // If the dialogue box is open, close it
+                if (currentScene.isTalking) {
+                    currentScene.closeDialogue();
                 } else {
                     currentScene.checkForInteraction();
                 }

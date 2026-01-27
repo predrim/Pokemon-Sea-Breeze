@@ -1,0 +1,13 @@
+{
+    "tileSize": 64,
+    "encounterChance": 0,
+    "imageSrc": "",
+    "foregroundSrc": "",
+    "playerStartingPosition": { "x": 0, "y": 0 },
+    "collisions": [],
+    "encounters": [],
+    "interactions": [],
+    "warps":[],    
+    "dialogues": {},
+    "warpPoints": {}
+}

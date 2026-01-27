@@ -1,11 +1,13 @@
 import { Sprite } from "../classes/Sprite.js";
-import { makeBoundaries, copyRows } from "../core/utils.js"
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE } from "../core/globalConfig.js";
+import { makeBoundaries, copyRows } from "../core/utils.js";
+import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE, CURRENT_MAP } from "../core/globalConfig.js";
 
 export class OverworldScene {
     constructor(config) {
         // --- 1. CONFIGURATION ---
         this.tileSize = config.tileSize || TILE_SIZE;
+        this.mapWidth = config.mapSize.width;
+        this.mapHeight = config.mapSize.height;
         this.encounterChance = config.encounterChance;
         this.onBattleStart = config.onBattleStart;
 
@@ -26,6 +28,7 @@ export class OverworldScene {
         this.targetX = 0;
         this.targetY = 0;
         this.currentTile = { ...config.playerStartingPosition };
+        this.playerWalkAnimSpeed = 8;
 
         // --- 4. POSITIONING ---
         // Center the map around the player's position
@@ -60,26 +63,30 @@ export class OverworldScene {
 
         // --- 6. BOUNDARIES ---
         const collisionRows = [];
-        copyRows(collisionRows, config.collisions, 70);
+        copyRows(collisionRows, config.collisions || [], this.mapWidth);
         this.collisionBoundaries = makeBoundaries(collisionRows, offset);
 
         const encounterRows = [];
-        copyRows(encounterRows, config.encounters || [], 70);
+        copyRows(encounterRows, config.encounters || [], this.mapWidth);
         this.encounterBoundaries = makeBoundaries(encounterRows, offset);
 
         this.dialogues = config.dialogues || {};
-
         const interactionRows = [];
-        copyRows(interactionRows, config.interactions || [], 70);
+        copyRows(interactionRows, config.interactions || [], this.mapWidth);
         this.interactionBoundaries = makeBoundaries(interactionRows, offset);
 
+        this.warpPoints = config.warpPoints || {};
+        const warpRows = [];
+        copyRows(warpRows, config.warps || [], this.mapWidth);
+        this.warpBoundaries = makeBoundaries(warpRows, offset);
+
         // Elements that move with the map
-        this.movables = [this.background, this.foreground, ...this.collisionBoundaries, ...this.encounterBoundaries, ...this.interactionBoundaries];  
+        this.movables = [this.background, this.foreground, ...this.collisionBoundaries, ...this.encounterBoundaries, ...this.interactionBoundaries, ...this.warpBoundaries];  
         
-        // --- 7. DIALOGUE BOX ---
+        // --- 7. DIALOGUE ---
         this.txtBoxElement = document.getElementById('txt-box');
         this.txtElement = document.getElementById('txt');
-
+        this.isTalking = false;
     }
 
     // ==================
@@ -90,15 +97,21 @@ export class OverworldScene {
         this.background.draw(ctx);
         this.player.draw(ctx);
         this.foreground.draw(ctx);
+
+        // These are for testing and debugging.
+        //this.collisionBoundaries.forEach((boundary) => {boundary.draw(ctx)});
+        //this.warpBoundaries.forEach((boundary) => {boundary.draw(ctx)});
+        //this.interactionBoundaries.forEach((boundary) => {boundary.draw(ctx)});
     }
 
     update(keys) {
-        const animationSpeed = 8;
+        if (this.isTalking) return;
+
 
         // 1. Handle Walking Animation
         if (this.isPlayerMoving) {
             this.walkAnimationTimer++;
-            this.player.frameH = Math.floor(this.walkAnimationTimer / animationSpeed) % this.player.frameAmountH;
+            this.player.frameH = Math.floor(this.walkAnimationTimer / this.playerWalkAnimSpeed) % this.player.frameAmountH;
         }
 
         // 2. Handle Continuous Movement (Moving the map to target)
@@ -154,6 +167,7 @@ export class OverworldScene {
         this.lastKey = key;
         this.player.frameV = frameV;
         this.attemptMove(moveX, moveY);
+        this.checkForWarp(moveX, moveY);
     }
 
     // Resets flags after completing a step
@@ -164,7 +178,7 @@ export class OverworldScene {
         this.checkForEncounter();
     }
 
-    // Logic to check collisions and setthe target coordinate
+    // Logic to check collisions and set the target coordinate
     attemptMove(moveX, moveY) {
         let canMoveDir = true;
 
@@ -174,7 +188,7 @@ export class OverworldScene {
             x: this.player.position.x + 16,
             y: this.player.position.y + 16
         },
-       width: 32,
+        width: 32,
         height: 32
         }
 
@@ -202,6 +216,36 @@ export class OverworldScene {
             this.isPlayerMoving = true;
             this.targetX = this.background.position.x + (moveX * this.tileSize);
             this.targetY = this.background.position.y + (moveY * this.tileSize);
+        }
+    }
+
+    checkForWarp(moveX, moveY) {
+        const hitbox = {
+        position: {
+            x: this.player.position.x + 16,
+            y: this.player.position.y + 16
+        },
+        width: 32,
+        height: 32
+        }
+
+        // Check Collisions
+        for (let i = 0; i < this.warpBoundaries.length; i++) {
+            const boundary = this.warpBoundaries[i];
+
+            const predictBoundaryPos = {
+                x: boundary.position.x + (moveX * this.tileSize),
+                y: boundary.position.y + (moveY * this.tileSize)
+            };
+
+            if (this.rectangularCollision({
+                rectangle1: hitbox,
+                rectangle2: { ...boundary, position: predictBoundaryPos }
+            })) {
+                console.log("warp collision");
+                CURRENT_MAP = "T1";
+                break;
+            }
         }
     }
 
@@ -233,12 +277,18 @@ export class OverworldScene {
                 
                 if (text) {
                     console.log("Dialogue Found: ", text);
+                    this.isTalking = true;
                     this.txtElement.innerText = text;
                     this.txtBoxElement.style.display = 'block';
                 }
                 break;
             }
         }
+    }
+
+    closeDialogue() {
+        this.isTalking = false;
+        this.txtBoxElement.style.display = 'none';
     }
 
     checkForEncounter() {
