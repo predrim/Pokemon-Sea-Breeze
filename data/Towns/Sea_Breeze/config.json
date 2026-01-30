@@ -7,7 +7,7 @@
     "encounterChance": 15,
     "imageSrc": "./assets/Towns/Sea_Breeze/Sea_Breeze_Town.png",
     "foregroundSrc": "./assets/Towns/Sea_Breeze/F-Sea_Breeze_Town.png",
-    "playerStartingPosition": { "x": 21, "y": 22 },
+    "fallbackStartingPosition": { "x": 21, "y": 22 },
     "collisions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -191,19 +191,25 @@
     },
     "warpPoints": {
         "5001": {
-            "location": "Player_House",
-            "x": 10,
-            "y": 10
+            "location": "T1_PH",
+            "coordinates" : {
+                "x": 4,
+                "y": 9
+            }
         },
         "5002": {
-            "location": "Rival_House",
-            "x": 10,
-            "y": 10
+            "location": "T1_PH",
+            "coordinates" : {
+                "x": 4,
+                "y": 9
+            }
         },
         "5003": {
-            "location": "Professor_Lab",
-            "x": 10,
-            "y": 10
+            "location": "T1_PH",
+            "coordinates" : {
+                "x": 4,
+                "y": 9
+            }
         }
     }
 }

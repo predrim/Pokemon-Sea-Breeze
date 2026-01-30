@@ -7,7 +7,7 @@
     "encounterChance": 0,
     "imageSrc": "./assets/Towns/Sea_Breeze/Interiors/Player_House.png",
     "foregroundSrc": "./assets/Towns/Sea_Breeze/Interiors/F-Player_House.png",
-    "playerStartingPosition": { "x": 4, "y": 7 },
+    "fallbackStartingPosition": { "x": 2, "y": 3 },
     "collisions": [0, 0, 0, 0, 0, 0, 0, 0, 1993, 0,
                    0, 0, 0, 0, 1993, 0, 0, 1993, 0, 1993,
                    0, 1993, 1993, 1993, 0, 1993, 1993, 1993, 0, 1993,
@@ -37,18 +37,24 @@
     "warpPoints": {
         "5001": {
         "location": "T1",
-        "x": 21,
-        "y": 22
+            "coordinates" : {
+                "x": 21,
+                "y": 21
+            }
         },
         "5002": {
         "location": "T1",
-        "x": 21,
-        "y": 22
+            "coordinates" : {
+                "x": 21,
+                "y": 21
+            }
         },
         "5003": {
         "location": "T1",
-        "x": 21,
-        "y": 22
+            "coordinates" : {
+                "x": 21,
+                "y": 21
+            }
         }
     }
 }

@@ -1,15 +1,16 @@
 import { Sprite } from "../classes/Sprite.js";
 import { makeBoundaries, copyRows } from "../core/utils.js";
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE, CURRENT_MAP } from "../core/globalConfig.js";
+import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE} from "../core/globalConfig.js";
 
 export class OverworldScene {
-    constructor(config) {
+    constructor(config, spawnPosition) {
         // --- 1. CONFIGURATION ---
         this.tileSize = config.tileSize || TILE_SIZE;
         this.mapWidth = config.mapSize.width;
         this.mapHeight = config.mapSize.height;
         this.encounterChance = config.encounterChance;
         this.onBattleStart = config.onBattleStart;
+        this.onWarp = config.onWarp;
 
         // --- 2. IMAGES
         const image = new Image();
@@ -27,7 +28,7 @@ export class OverworldScene {
         this.walkAnimationTimer = 0;
         this.targetX = 0;
         this.targetY = 0;
-        this.currentTile = { ...config.playerStartingPosition };
+        this.currentTile = spawnPosition || { ...config.fallbackStartingPosition };
         this.playerWalkAnimSpeed = 8;
 
         // --- 4. POSITIONING ---
@@ -242,8 +243,9 @@ export class OverworldScene {
                 rectangle1: hitbox,
                 rectangle2: { ...boundary, position: predictBoundaryPos }
             })) {
-                console.log("warp collision");
-                CURRENT_MAP = "T1";
+                const warpLocation = this.warpPoints[boundary.symbol].location;
+                const spawnPosition = this.warpPoints[boundary.symbol].coordinates;
+                this.onWarp(warpLocation, spawnPosition);
                 break;
             }
         }
@@ -274,7 +276,7 @@ export class OverworldScene {
             })) {
                 // Retrieve text from Json
                 const text = this.dialogues[boundary.symbol];
-                
+
                 if (text) {
                     console.log("Dialogue Found: ", text);
                     this.isTalking = true;

@@ -5,12 +5,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 #gameContainer {
     position: relative;
     aspect-ratio: 16 / 9;
-    height: 99.0vh;
+    height: 100vh;
 }
 
 canvas {

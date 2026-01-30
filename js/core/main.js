@@ -3,7 +3,7 @@ import { OverworldScene } from "../scenes/OverworldScene.js";
 import { BattleTransitionScene } from "../scenes/BattleTransition.js";
 import { AssetLoader } from "../classes/AssetLoader.js";
 import { maps } from "../../data/maps.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CURRENT_MAP} from "./globalConfig.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH} from "./globalConfig.js";
 
 // --- CANVAS SETUP ---
 const canvas = document.querySelector('canvas');
@@ -27,7 +27,7 @@ const keys = {
 async function initGame() {
     // Load the data for map
     console.log("Loading Map...");
-    const mapConfig = await assetLoader.loadMap(maps[CURRENT_MAP]);
+    let mapConfig = await assetLoader.loadMap(maps["T1"]);
     
     // Battle Callback
     mapConfig.onBattleStart = () => {
@@ -36,6 +36,15 @@ async function initGame() {
             console.log("Transition Done. Starting Battle!");
         });
     };
+    
+    // Warp Callback
+    const handleWarp = async (warpLocation, spawnPosition) => {
+        const newMapData = await assetLoader.loadMap(maps[warpLocation]);
+        mapConfig = newMapData;
+        mapConfig.onWarp = handleWarp;
+        currentScene = new OverworldScene(mapConfig, spawnPosition);
+    };
+    mapConfig.onWarp = handleWarp;
 
     // Start the Scene
     currentScene = new OverworldScene(mapConfig);

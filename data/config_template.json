@@ -3,7 +3,7 @@
     "encounterChance": 0,
     "imageSrc": "",
     "foregroundSrc": "",
-    "playerStartingPosition": { "x": 0, "y": 0 },
+    "fallbackStartingPosition": { "x": 0, "y": 0 },
     "collisions": [],
     "encounters": [],
     "interactions": [],
