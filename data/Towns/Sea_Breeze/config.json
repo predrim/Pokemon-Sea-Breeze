@@ -198,10 +198,10 @@
             }
         },
         "5002": {
-            "location": "T1_PH",
+            "location": "T1_RH",
             "coordinates" : {
                 "x": 4,
-                "y": 9
+                "y": 8
             }
         },
         "5003": {

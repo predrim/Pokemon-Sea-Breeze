@@ -8,5 +8,9 @@ export const maps = {
     T1_PH: {
         id: 'Player_House',
         configUrl: './data/Towns/Sea_Breeze/Interiors/Player_House/config.json'
+    },
+    T1_RH: {
+        id: 'Rival_House',
+        configUrl: './data/Towns/Sea_Breeze/Interiors/Rival_House/config.json'
     }
 };
