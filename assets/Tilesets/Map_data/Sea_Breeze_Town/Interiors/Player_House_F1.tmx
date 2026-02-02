@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="9" height="9" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="1">
+ <editorsettings>
+  <export target="../../../../../Player_House_F1.js" format="js"/>
+ </editorsettings>
+ <tileset firstgid="1" source="../../../Tileset_data/house_1.tsx"/>
+ <tileset firstgid="113" source="../../../Tileset_data/Collisions_Tileset.tsx"/>
+ <group id="5" name="objects" offsetx="0" offsety="16">
+  <layer id="1" name="floor" width="9" height="9">
+   <data encoding="csv">
+0,0,0,0,0,0,0,0,0,
+0,20,20,20,20,20,20,20,0,
+0,20,20,20,20,20,20,20,0,
+0,20,20,20,20,20,20,20,0,
+0,20,20,20,20,20,20,20,0,
+0,20,20,20,20,20,20,20,0,
+0,20,20,20,20,20,20,20,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+  </layer>
+  <layer id="2" name="walls" width="9" height="9">
+   <data encoding="csv">
+0,1,1,1,1,1,1,7,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+  </layer>
+  <layer id="3" name="furniture" width="9" height="9">
+   <data encoding="csv">
+0,2,3,0,5,5,0,0,0,
+0,10,11,23,13,13,0,0,0,
+0,18,19,0,0,0,0,0,0,
+0,0,9,0,41,49,0,0,0,
+0,0,17,0,22,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+  </layer>
+ </group>
+ <layer id="4" name="collisions" width="9" height="9" visible="0" offsetx="0.0208333" offsety="16">
+  <data encoding="csv">
+0,0,0,0,0,0,113,0,113,
+0,113,113,113,113,113,0,0,113,
+113,0,0,0,0,0,0,0,113,
+113,0,113,0,113,113,0,0,113,
+113,0,113,0,0,0,0,0,113,
+113,0,0,0,0,0,0,0,113,
+113,0,0,0,0,0,0,0,113,
+0,113,113,113,113,113,113,113,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="7" name="interactions" width="9" height="9" visible="0" offsetx="0" offsety="16">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,
+0,116,116,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,116,116,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="6" name="warps" width="9" height="9" visible="0" offsetx="0" offsety="16">
+  <data encoding="csv">
+0,0,0,0,0,0,0,115,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

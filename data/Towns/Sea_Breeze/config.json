@@ -5,8 +5,8 @@
         "height": 43 
     },
     "encounterChance": 15,
-    "imageSrc": "./assets/Towns/Sea_Breeze/Sea_Breeze_Town.png",
-    "foregroundSrc": "./assets/Towns/Sea_Breeze/F-Sea_Breeze_Town.png",
+    "imageSrc": "./assets/Locations/Sea_Breeze/Sea_Breeze_Town.png",
+    "foregroundSrc": "./assets/Locations/Sea_Breeze/F-Sea_Breeze_Town.png",
     "fallbackStartingPosition": { "x": 21, "y": 22 },
     "collisions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -205,10 +205,10 @@
             }
         },
         "5003": {
-            "location": "T1_PH",
+            "location": "T1_PL",
             "coordinates" : {
-                "x": 4,
-                "y": 9
+                "x": 6,
+                "y": 13
             }
         }
     }

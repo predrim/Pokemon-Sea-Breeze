@@ -5,8 +5,8 @@
         "height": 10 
     },
     "encounterChance": 0,
-    "imageSrc": "./assets/Towns/Sea_Breeze/Interiors/Player_House.png",
-    "foregroundSrc": "./assets/Towns/Sea_Breeze/Interiors/F-Player_House.png",
+    "imageSrc": "./assets/Locations/Sea_Breeze/Interiors/Player_House.png",
+    "foregroundSrc": "./assets/Locations/Sea_Breeze/Interiors/F-Player_House.png",
     "fallbackStartingPosition": { "x": 2, "y": 3 },
     "collisions": [0, 0, 0, 0, 0, 0, 0, 0, 1993, 0,
                    0, 0, 0, 0, 1993, 0, 0, 1993, 0, 1993,
@@ -50,10 +50,10 @@
             }
         },
         "5003": {
-        "location": "T1",
+        "location": "T1_PH_F1",
             "coordinates" : {
-                "x": 21,
-                "y": 21
+                "x": 7,
+                "y": 1
             }
         }
     }

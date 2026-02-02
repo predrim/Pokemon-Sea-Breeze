@@ -27,7 +27,7 @@ const keys = {
 async function initGame() {
     // Load the data for map
     console.log("Loading Map...");
-    let mapConfig = await assetLoader.loadMap(maps["T1"]);
+    let mapConfig = await assetLoader.loadMap(maps["T1_PH_F1"]);
     
     // Battle Callback
     mapConfig.onBattleStart = () => {

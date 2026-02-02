@@ -47,7 +47,7 @@
 </data>
   </layer>
  </group>
- <layer id="4" name="Collisions" width="10" height="9" visible="0" opacity="0.5">
+ <layer id="4" name="Collisions" width="10" height="9" opacity="0.5">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,2684356489,0,0,0,2684356489,0,0,
@@ -60,7 +60,7 @@
 0,2684356489,2684356489,0,0,2684356489,2684356489,2684356489,2684356489,0
 </data>
  </layer>
- <layer id="5" name="Warp" width="10" height="9" visible="0" opacity="0.5">
+ <layer id="5" name="Warp" width="10" height="9" opacity="0.5">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,

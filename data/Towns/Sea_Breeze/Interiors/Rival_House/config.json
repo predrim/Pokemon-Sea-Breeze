@@ -5,7 +5,7 @@
         "height": 9 
     },
     "encounterChance": 0,
-    "imageSrc": "./assets/Towns/Sea_Breeze/Interiors/Rival_House.png",
+    "imageSrc": "./assets/Locations/Sea_Breeze/Interiors/Rival_House.png",
     "foregroundSrc": "",
     "fallbackStartingPosition": { "x": 0, "y": 0 },
     "collisions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
