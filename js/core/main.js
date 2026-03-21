@@ -3,7 +3,7 @@ import { OverworldScene } from "../scenes/OverworldScene.js";
 import { BattleTransitionScene } from "../scenes/BattleTransition.js";
 import { AssetLoader } from "../classes/AssetLoader.js";
 import { maps } from "../../data/maps.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH} from "./globalConfig.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./globalConfig.js";
 
 // --- CANVAS SETUP ---
 const canvas = document.querySelector('canvas');
@@ -28,7 +28,7 @@ async function initGame() {
     // Load the data for map
     console.log("Loading Map...");
     let mapConfig = await assetLoader.loadMap(maps["T1_PH_F1"]);
-    
+
     // Battle Callback
     mapConfig.onBattleStart = () => {
         console.log("Transitioning to battle Scene...");
@@ -36,7 +36,7 @@ async function initGame() {
             console.log("Transition Done. Starting Battle!");
         });
     };
-    
+
     // Warp Callback
     const handleWarp = async (warpLocation, spawnPosition) => {
         const newMapData = await assetLoader.loadMap(maps[warpLocation]);
@@ -49,7 +49,7 @@ async function initGame() {
     // Start the Scene
     currentScene = new OverworldScene(mapConfig);
     console.log("Game Started!");
-    
+
     // Start Loop
     animate();
 }
@@ -77,14 +77,12 @@ window.addEventListener('keydown', (e) => {
         case 'd': keys.d.pressed = true; break;
 
         case ' ':
-            if (currentScene && currentScene.checkForInteraction) {
-                const txtBox = document.getElementById('txt-box');
-                // If the dialogue box is open, close it
-                if (currentScene.isTalking) {
+            if (currentScene && currentScene.isTalking) {
+                if (currentScene.canClose) {
                     currentScene.closeDialogue();
-                } else {
-                    currentScene.checkForInteraction();
                 }
+            } else if (currentScene && currentScene.checkForInteraction) {
+                currentScene.checkForInteraction();
             }
             break;
     }

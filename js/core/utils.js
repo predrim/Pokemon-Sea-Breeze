@@ -40,18 +40,23 @@ export function wait(seconds) {
     });
 }
 
-// Text typewriter effect
-export function textTypingEffect(element, text, speed, i=0) {
-    if (i === 0) {
-        element.textContent="";
-    }
+// Text typewriter effect for dialogues
+export function textTypingEffect(element, text, speed, i=0, canClose = false) {
+    return new Promise((resolve) => {
+        if (i === 0) {
+            element.textContent="";
+        }
 
-    element.textContent += text[i];
-
-    // if we reached the end of the string
-    if (i === text.length - 1) {
-        return;
-    }
-
-    setTimeout(() => textTypingEffect(element, text, speed, i + 1), speed)
+        if (text.length === 0) return resolve()
+    
+        element.textContent += text[i];
+    
+        // if we reached the end of the string
+        if (i === text.length - 1) {
+            resolve(); // Warns that the text is over
+            return;
+        }
+    
+        setTimeout(() => {textTypingEffect(element, text, speed, i + 1).then(resolve)}, speed);
+    });
 }

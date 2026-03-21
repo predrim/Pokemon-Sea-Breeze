@@ -251,7 +251,7 @@ export class OverworldScene {
         }
     }
 
-    checkForInteraction() {
+    async checkForInteraction() {
         const interactionHitbox = {
         position: {
                 x: this.player.position.x + 16,
@@ -280,8 +280,12 @@ export class OverworldScene {
                 if (text) {
                     console.log("Dialogue Found: ", text);
                     this.isTalking = true;
-                    textTypingEffect(this.txtElement, text, 20);
+                    this.canClose = false;
                     this.txtBoxElement.style.display = 'block';
+
+                    await textTypingEffect(this.txtElement, text, 20);
+
+                    this.canClose = true;
                 }
                 break;
             }
