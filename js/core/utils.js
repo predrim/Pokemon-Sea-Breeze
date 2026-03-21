@@ -39,3 +39,19 @@ export function wait(seconds) {
         setTimeout(resolve, seconds*1000);
     });
 }
+
+// Text typewriter effect
+export function textTypingEffect(element, text, speed, i=0) {
+    if (i === 0) {
+        element.textContent="";
+    }
+
+    element.textContent += text[i];
+
+    // if we reached the end of the string
+    if (i === text.length - 1) {
+        return;
+    }
+
+    setTimeout(() => textTypingEffect(element, text, speed, i + 1), speed)
+}

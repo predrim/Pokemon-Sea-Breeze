@@ -1,5 +1,5 @@
 import { Sprite } from "../classes/Sprite.js";
-import { makeBoundaries, copyRows } from "../core/utils.js";
+import { makeBoundaries, copyRows, textTypingEffect } from "../core/utils.js";
 import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE} from "../core/globalConfig.js";
 
 export class OverworldScene {
@@ -280,7 +280,7 @@ export class OverworldScene {
                 if (text) {
                     console.log("Dialogue Found: ", text);
                     this.isTalking = true;
-                    this.txtElement.innerText = text;
+                    textTypingEffect(this.txtElement, text, 20);
                     this.txtBoxElement.style.display = 'block';
                 }
                 break;
