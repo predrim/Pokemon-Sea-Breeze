@@ -37,7 +37,7 @@ canvas {
     background-color: #F8F8F8;
     border: 6.0vmin solid;
     border-image-source: url('assets/Windowskins/speech\ 1.png');
-    border-image-slice: 17;
+    border-image-slice: 18;
     border-image-repeat: repeat;
 
     box-shadow: 14px 14px black;
