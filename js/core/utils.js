@@ -39,3 +39,24 @@ export function wait(seconds) {
         setTimeout(resolve, seconds*1000);
     });
 }
+
+// Text typewriter effect for dialogues
+export function textTypingEffect(element, text, speed, i=0, canClose = false) {
+    return new Promise((resolve) => {
+        if (i === 0) {
+            element.textContent="";
+        }
+
+        if (text.length === 0) return resolve()
+    
+        element.textContent += text[i];
+    
+        // if we reached the end of the string
+        if (i === text.length - 1) {
+            resolve(); // Warns that the text is over
+            return;
+        }
+    
+        setTimeout(() => {textTypingEffect(element, text, speed, i + 1).then(resolve)}, speed);
+    });
+}
