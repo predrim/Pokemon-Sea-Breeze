@@ -28,12 +28,14 @@ canvas {
 
 #txt-box {
     position: absolute;
-    
+
+    display: inline;
+
     left: 7.8%;
     right: 7.8%;
     bottom: 3.4%; 
     height: 26%;
-    
+
     background-color: #F8F8F8;
     border: 6.0vmin solid;
     border-image-source: url('assets/Windowskins/speech\ 1.png');
@@ -49,8 +51,11 @@ canvas {
     font-family: GSC;
     font-size: 5.0vmin;
     margin-top: 4%;
-    margin-left: 2%; 
     margin-right: 2%; 
     line-height: 1.7;
     color: black;
+}
+
+.char {
+    opacity: 0;
 }

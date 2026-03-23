@@ -41,22 +41,38 @@ export function wait(seconds) {
 }
 
 // Text typewriter effect for dialogues
-export function textTypingEffect(element, text, speed, i=0, canClose = false) {
+export function textTypingEffect(element, text, speed, i = 0, txtArr = [], charArray) {
     return new Promise((resolve) => {
         if (i === 0) {
             element.textContent="";
         }
+        
+        if (text.length === 0) return resolve();
+        
+        if (i === 0) {
+            txtArr.push(text
+                .split(/([ ,.])/)
+                .map(item => {
+                    item = item.split("")
+                    .map(char => `<span class="char">${char}</span>`).join("");
+                    item = `<span>${item}</span>`;
+                    return item;
+                })
+                .join("")
+            );
+            element.innerHTML = txtArr[0];
+        };
 
-        if (text.length === 0) return resolve()
-    
-        element.textContent += text[i];
-    
+        charArray = document.getElementsByClassName("char");
+
+        charArray[i].style.opacity = 1;
+
         // if we reached the end of the string
         if (i === text.length - 1) {
             resolve(); // Warns that the text is over
             return;
         }
     
-        setTimeout(() => {textTypingEffect(element, text, speed, i + 1).then(resolve)}, speed);
+        setTimeout(() => {textTypingEffect(element, text, speed, i + 1, txtArr=[], charArray).then(resolve)}, speed);
     });
 }
