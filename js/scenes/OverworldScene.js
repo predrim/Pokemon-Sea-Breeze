@@ -1,7 +1,14 @@
 import { Sprite } from "../classes/Sprite.js";
-import { makeBoundaries, copyRows, textTypingEffect } from "../core/utils.js";
+import { makeBoundaries, copyRows } from "../core/utils.js";
 import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE} from "../core/globalConfig.js";
+import { typeText } from "../core/ui/text.js";
 
+const PLAYER_STATE = {
+    IDLE: 'IDLE',
+    MOVING: 'MOVING',
+    TALKING: 'TALKING',
+    CUTSCENE: 'CUTSCENE'
+};
 export class OverworldScene {
     constructor(config, spawnPosition) {
         // --- 1. CONFIGURATION ---
@@ -23,13 +30,13 @@ export class OverworldScene {
         playerImage.src = './assets/Characters/Players/Crys.png';
 
         // --- 3. STATE ---
-        this.isPlayerMoving = false;
         this.lastKey = '';
         this.walkAnimationTimer = 0;
         this.targetX = 0;
         this.targetY = 0;
         this.currentTile = spawnPosition || { ...config.fallbackStartingPosition };
         this.playerWalkAnimSpeed = 8;
+        this.state = PLAYER_STATE.IDLE;
 
         // --- 4. POSITIONING ---
         // Center the map around the player's position
@@ -87,7 +94,6 @@ export class OverworldScene {
         // --- 7. DIALOGUE ---
         this.txtBoxElement = document.getElementById('txt-box');
         this.txtElement = document.getElementById('txt');
-        this.isTalking = false;
     }
 
     // ==================
@@ -106,17 +112,17 @@ export class OverworldScene {
     }
 
     update(keys) {
-        if (this.isTalking) return;
+        if (this.state === PLAYER_STATE.TALKING || this.state === PLAYER_STATE.CUTSCENE) return;
 
 
         // 1. Handle Walking Animation
-        if (this.isPlayerMoving) {
+        if (this.state === PLAYER_STATE.MOVING) {
             this.walkAnimationTimer++;
             this.player.frameH = Math.floor(this.walkAnimationTimer / this.playerWalkAnimSpeed) % this.player.frameAmountH;
         }
 
         // 2. Handle Continuous Movement (Moving the map to target)
-        if (this.isPlayerMoving) {
+        if (this.state === PLAYER_STATE.MOVING) {
             if (this.lastKey === 'w') {
                 this.movables.forEach(movable => {movable.position.y += 4});
                 // Check if the target has been reached
@@ -146,7 +152,7 @@ export class OverworldScene {
 
         // 3. Handle Input (Starting Movement)
         // Sets player's target tile based on what key was pressed
-        if (!this.isPlayerMoving) {
+        if (this.state === PLAYER_STATE.IDLE) {
             if (keys.w.pressed) {
                 this.moveInDirection('w', 3, 0, 1);
             } else if (keys.a.pressed) {
@@ -173,7 +179,7 @@ export class OverworldScene {
 
     // Resets flags after completing a step
     finishMovement(deltaX, deltaY) {
-        this.isPlayerMoving = false;
+        this.state = PLAYER_STATE.IDLE;
         this.currentTile.x += deltaX;
         this.currentTile.y += deltaY;
         this.checkForEncounter();
@@ -214,7 +220,7 @@ export class OverworldScene {
 
         // Set Move Targets if clear
         if (canMoveDir) {
-            this.isPlayerMoving = true;
+            this.state = PLAYER_STATE.MOVING;
             this.targetX = this.background.position.x + (moveX * this.tileSize);
             this.targetY = this.background.position.y + (moveY * this.tileSize);
         }
@@ -277,13 +283,13 @@ export class OverworldScene {
                 // Retrieve text from Json
                 const text = this.dialogues[boundary.symbol];
 
-                if (text) {
+                if (text && this.state === PLAYER_STATE.IDLE) {
                     console.log("Dialogue Found: ", text);
-                    this.isTalking = true;
+                    this.state = PLAYER_STATE.TALKING;
                     this.canClose = false;
                     this.txtBoxElement.style.display = 'block';
 
-                    await textTypingEffect(this.txtElement, text, 20);
+                    await typeText(this.txtElement, text, 20);
 
                     this.canClose = true;
                 }
@@ -293,7 +299,7 @@ export class OverworldScene {
     }
 
     closeDialogue() {
-        this.isTalking = false;
+        this.state = PLAYER_STATE.IDLE;
         this.txtBoxElement.style.display = 'none';
     }
 

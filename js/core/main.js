@@ -77,7 +77,7 @@ window.addEventListener('keydown', (e) => {
         case 'd': keys.d.pressed = true; break;
 
         case ' ':
-            if (currentScene && currentScene.isTalking) {
+            if (currentScene && currentScene.state === "TALKING") {
                 if (currentScene.canClose) {
                     currentScene.closeDialogue();
                 }
