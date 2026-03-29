@@ -13,7 +13,7 @@ export function copyRows(rowsArray, symbolsArray, rowSize) {
  * Creates "Boundary" objects from tile data.
  * Each non-zero tile represents an active boundary or trigger.
  */
-export function makeBoundaries(RowsArray, offset) {
+export function makeBoundaries(RowsArray) {
     const boundaries = [];
 
     RowsArray.forEach((row, i) => {
@@ -21,8 +21,8 @@ export function makeBoundaries(RowsArray, offset) {
             if (symbol !== 0) {
                 const boundary = new Boundary({
                     position: {
-                        x: j * Boundary.width + offset.x,
-                        y: i * Boundary.height + offset.y
+                        x: j * Boundary.width,
+                        y: i * Boundary.height
                     }
                 })
                 boundary.symbol = symbol;

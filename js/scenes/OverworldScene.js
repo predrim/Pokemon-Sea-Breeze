@@ -38,58 +38,48 @@ export class OverworldScene {
         this.playerWalkAnimSpeed = 8;
         this.state = PLAYER_STATE.IDLE;
 
-        // --- 4. POSITIONING ---
-        // Center the map around the player's position
-        const offset = {
-            x: -((this.currentTile.x * this.tileSize + this.tileSize/2) - (CANVAS_WIDTH/2)),
-            y: -((this.currentTile.y * this.tileSize + this.tileSize/2) - (CANVAS_HEIGHT/2))
-        };
-
         // --- 5. SPRITES & OBJECTS ---
         this.background = new Sprite ({
-            position: { x: offset.x, y: offset.y },
+            position: { x: 0, y: 0},
             image: image,
             scale: WORLD_SCALE
         });
 
         this.foreground = new Sprite({
-            position: { x: offset.x, y: offset.y},
+            position: { x: 0, y: 0},
             image: foregroundImage,
             scale: WORLD_SCALE
         });
 
         this.player = new Sprite({
             position: {
-                x: CANVAS_WIDTH / 2 - this.tileSize / 2, // Center of Screen
-                y: CANVAS_HEIGHT / 2 - this.tileSize / 2,
+                x: (this.currentTile.x) * this.tileSize, 
+                y: (this.currentTile.y) * this.tileSize,
             },
             image: playerImage,
             frameAmountH: 4,
             frameAmountV: 4,
             scale: WORLD_SCALE
         });
-
+        
         // --- 6. BOUNDARIES ---
         const collisionRows = [];
         copyRows(collisionRows, config.collisions || [], this.mapWidth);
-        this.collisionBoundaries = makeBoundaries(collisionRows, offset);
+        this.collisionBoundaries = makeBoundaries(collisionRows);
 
         const encounterRows = [];
         copyRows(encounterRows, config.encounters || [], this.mapWidth);
-        this.encounterBoundaries = makeBoundaries(encounterRows, offset);
+        this.encounterBoundaries = makeBoundaries(encounterRows);
 
         this.dialogues = config.dialogues || {};
         const interactionRows = [];
         copyRows(interactionRows, config.interactions || [], this.mapWidth);
-        this.interactionBoundaries = makeBoundaries(interactionRows, offset);
+        this.interactionBoundaries = makeBoundaries(interactionRows);
 
         this.warpPoints = config.warpPoints || {};
         const warpRows = [];
         copyRows(warpRows, config.warps || [], this.mapWidth);
-        this.warpBoundaries = makeBoundaries(warpRows, offset);
-
-        // Elements that move with the map
-        this.movables = [this.background, this.foreground, ...this.collisionBoundaries, ...this.encounterBoundaries, ...this.interactionBoundaries, ...this.warpBoundaries];  
+        this.warpBoundaries = makeBoundaries(warpRows);
         
         // --- 7. DIALOGUE ---
         this.txtBoxElement = document.getElementById('txt-box');
@@ -101,19 +91,28 @@ export class OverworldScene {
     // ==================
 
     draw(ctx) {
+        // Calculate the camera offset, fixated on the player
+        const cameraX = this.player.position.x - (CANVAS_WIDTH / 2) + (this.tileSize / 2);
+        const cameraY = this.player.position.y - (CANVAS_HEIGHT / 2) + (this.tileSize / 2);
+
+        // Save the context state and apply changes to camera coordinates
+        ctx.save();
+        ctx.translate(-cameraX, -cameraY);
+
         this.background.draw(ctx);
         this.player.draw(ctx);
         this.foreground.draw(ctx);
 
         // These are for testing and debugging.
-        //this.collisionBoundaries.forEach((boundary) => {boundary.draw(ctx)});
-        //this.warpBoundaries.forEach((boundary) => {boundary.draw(ctx)});
-        //this.interactionBoundaries.forEach((boundary) => {boundary.draw(ctx)});
+        //this.collisionBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(255,0,0,0.3)')});
+        //this.warpBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(100,0,255,0.3)')});
+        //this.interactionBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(255,255,0,0.3)')});
+
+        ctx.restore();
     }
 
     update(keys) {
         if (this.state === PLAYER_STATE.TALKING || this.state === PLAYER_STATE.CUTSCENE) return;
-
 
         // 1. Handle Walking Animation
         if (this.state === PLAYER_STATE.MOVING) {
@@ -124,27 +123,27 @@ export class OverworldScene {
         // 2. Handle Continuous Movement (Moving the map to target)
         if (this.state === PLAYER_STATE.MOVING) {
             if (this.lastKey === 'w') {
-                this.movables.forEach(movable => {movable.position.y += 4});
+                this.player.position.y -= 4;
                 // Check if the target has been reached
-                if (this.background.position.y >= this.targetY) {
+                if (this.player.position.y <= this.targetY) {
                     this.finishMovement(0, -1);
                 }
             }
             else if (this.lastKey === 'a') {
-                this.movables.forEach(movable => { movable.position.x += 4 });
-                if (this.background.position.x >= this.targetX) {
+                this.player.position.x -= 4;
+                if (this.player.position.x <= this.targetX) {
                     this.finishMovement(-1, 0);
                 }
             }
             else if (this.lastKey === 's') {
-                this.movables.forEach(movable => { movable.position.y -= 4 });
-                if (this.background.position.y <= this.targetY) {
+                this.player.position.y += 4;
+                if (this.player.position.y >= this.targetY) {
                     this.finishMovement(0, 1);
                 }
             }
             else if (this.lastKey === 'd') {
-                this.movables.forEach(movable => { movable.position.x -= 4 });
-                if (this.background.position.x <= this.targetX) {
+                this.player.position.x += 4;
+                if (this.player.position.x >= this.targetX) {
                     this.finishMovement(1, 0);
                 }
             }
@@ -221,8 +220,8 @@ export class OverworldScene {
         // Set Move Targets if clear
         if (canMoveDir) {
             this.state = PLAYER_STATE.MOVING;
-            this.targetX = this.background.position.x + (moveX * this.tileSize);
-            this.targetY = this.background.position.y + (moveY * this.tileSize);
+            this.targetX = this.player.position.x - (moveX * this.tileSize);
+            this.targetY = this.player.position.y - (moveY * this.tileSize);
         }
     }
 
@@ -320,7 +319,6 @@ export class OverworldScene {
                 rectangle1: hitbox,
                 rectangle2: encounterTile
             })) {
-                // RNG check
                 if (Math.random() < (this.encounterChance / 100)) {
                     this.onBattleStart();
                 }
