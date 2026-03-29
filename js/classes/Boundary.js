@@ -7,8 +7,8 @@ export class Boundary {
         this.height = 64;
     };
 
-    draw(c) {
-        c.fillStyle = 'rgba(255,0,0,0.3)';
+    draw(c, color) {
+        c.fillStyle = color;
         c.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
 };

@@ -28,5 +28,5 @@ export class Sprite {
             (this.image.width / this.frameAmountH) * this.scale,
             (this.image.height / this.frameAmountV) * this.scale,
         );
-    }
+    };
 };
