@@ -8,8 +8,19 @@ export class AssetLoader {
         });
     }
 
+    async loadFont(name, url) {
+        const font = new FontFace(name, `url(${url})`);
+            try {
+                const loadedFont = await font.load();
+                document.fonts.add(loadedFont);
+                console.log(`Font loaded: ${name}`);
+                return loadedFont;
+            } catch (err) {
+                console.error(`Failed to load font: ${name}`, err);
+            }
+    }
+
     async loadMap(mapManifestEntry) {
-        // 1. Fetch the JSON config
         const response = await fetch(mapManifestEntry.configUrl);
         const mapConfig = await response.json();
 

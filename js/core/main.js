@@ -25,9 +25,13 @@ const keys = {
 
 // --- INITIALIZATION ---
 async function initGame() {
-    // Load the data for map
-    console.log("Loading Map...");
-    let mapConfig = await assetLoader.loadMap(maps["T1_PH_F1"]);
+    console.log("Loading Assets and Map...");
+    
+    const [mapConfig] = await Promise.all([
+        assetLoader.loadMap(maps["T1_PH_F1"]),
+        assetLoader.loadImage('./assets/Characters/Players/Crys.png'),
+        assetLoader.loadFont('GSC', './assets/Fonts/pokemon-gsc.otf.woff2')
+    ]);
 
     // Battle Callback
     mapConfig.onBattleStart = () => {

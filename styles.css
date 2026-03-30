@@ -21,11 +21,6 @@ canvas {
     image-rendering: crisp-edges;
 }
 
-@font-face {
-    font-family: GSC;
-    src: url(assets/Fonts/pokemon-gsc.otf.woff2);
-}
-
 #txt-box {
     position: absolute;
 
