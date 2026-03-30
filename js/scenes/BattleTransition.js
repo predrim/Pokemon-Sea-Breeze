@@ -1,5 +1,5 @@
 import { Sprite } from "../classes/Sprite.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../core/globalConfig.js";
+import { CANVAS_SIZE } from "../core/globalConfig.js";
 import { wait } from "../core/utils.js";
 
 export class BattleTransitionScene {

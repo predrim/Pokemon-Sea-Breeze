@@ -1,6 +1,7 @@
 import { Sprite } from "../classes/Sprite.js";
 import { makeBoundaries, copyRows } from "../core/utils.js";
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, WORLD_SCALE} from "../core/globalConfig.js";
+import { TILE_SIZE, CANVAS_SIZE, WORLD_SCALE} from "../core/globalConfig.js";
+import { Camera } from "../classes/Camera.js";
 import { typeText } from "../core/ui/text.js";
 
 const PLAYER_STATE = {
@@ -38,19 +39,19 @@ export class OverworldScene {
         this.playerWalkAnimSpeed = 8;
         this.state = PLAYER_STATE.IDLE;
 
-        // --- 5. SPRITES & OBJECTS ---
+        // --- 4. SPRITES & OBJECTS ---
         this.background = new Sprite ({
             position: { x: 0, y: 0},
             image: image,
             scale: WORLD_SCALE
         });
-
+        
         this.foreground = new Sprite({
             position: { x: 0, y: 0},
             image: foregroundImage,
             scale: WORLD_SCALE
         });
-
+        
         this.player = new Sprite({
             position: {
                 x: (this.currentTile.x) * this.tileSize, 
@@ -61,6 +62,10 @@ export class OverworldScene {
             frameAmountV: 4,
             scale: WORLD_SCALE
         });
+
+        // --- 5. CAMERA SETUP ---
+        this.camera = new Camera(CANVAS_SIZE);
+        this.camera.setTarget(this.player);
         
         // --- 6. BOUNDARIES ---
         const collisionRows = [];
@@ -90,14 +95,9 @@ export class OverworldScene {
     //    MAIN METHODS
     // ==================
 
-    draw(ctx) {
-        // Calculate the camera offset, fixated on the player
-        const cameraX = this.player.position.x - (CANVAS_WIDTH / 2) + (this.tileSize / 2);
-        const cameraY = this.player.position.y - (CANVAS_HEIGHT / 2) + (this.tileSize / 2);
-
-        // Save the context state and apply changes to camera coordinates
-        ctx.save();
-        ctx.translate(-cameraX, -cameraY);
+    draw(ctx) {  
+        this.camera.update(this.tileSize);
+        this.camera.begin(ctx);
 
         this.background.draw(ctx);
         this.player.draw(ctx);
@@ -108,7 +108,7 @@ export class OverworldScene {
         //this.warpBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(100,0,255,0.3)')});
         //this.interactionBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(255,255,0,0.3)')});
 
-        ctx.restore();
+        this.camera.end(ctx);
     }
 
     update(keys) {

@@ -3,13 +3,13 @@ import { OverworldScene } from "../scenes/OverworldScene.js";
 import { BattleTransitionScene } from "../scenes/BattleTransition.js";
 import { AssetLoader } from "../classes/AssetLoader.js";
 import { maps } from "../../data/maps.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./globalConfig.js";
+import { CANVAS_SIZE } from "./globalConfig.js";
 
 // --- CANVAS SETUP ---
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = CANVAS_WIDTH;
-canvas.height = CANVAS_HEIGHT;
+canvas.width = CANVAS_SIZE.WIDTH;
+canvas.height = CANVAS_SIZE.HEIGHT;
 ctx.imageSmoothingEnabled = false;
 
 // --- GLOBAL STATE ---
