@@ -2,7 +2,7 @@ import { Sprite } from "../classes/Sprite.js";
 import { makeBoundaries, copyRows } from "../core/utils.js";
 import { TILE_SIZE, CANVAS_SIZE, WORLD_SCALE} from "../core/globalConfig.js";
 import { Camera } from "../classes/Camera.js";
-import { typeText } from "../core/ui/text.js";
+import { Dialogue } from "../classes/Dialogue.js";
 
 const PLAYER_STATE = {
     IDLE: 'IDLE',
@@ -288,7 +288,8 @@ export class OverworldScene {
                     this.canClose = false;
                     this.txtBoxElement.style.display = 'block';
 
-                    await typeText(this.txtElement, text, 20);
+                    let dialogue = new Dialogue(this.txtElement, text);
+                    await dialogue.typeText(20);
 
                     this.canClose = true;
                 }

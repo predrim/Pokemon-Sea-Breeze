@@ -13,7 +13,6 @@ export class AssetLoader {
             try {
                 const loadedFont = await font.load();
                 document.fonts.add(loadedFont);
-                console.log(`Font loaded: ${name}`);
                 return loadedFont;
             } catch (err) {
                 console.error(`Failed to load font: ${name}`, err);
