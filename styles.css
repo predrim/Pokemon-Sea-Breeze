@@ -30,6 +30,7 @@ canvas {
     right: 7.8%;
     bottom: 3.4%; 
     height: 26%;
+    overflow-y: hidden;
 
     background-color: #F8F8F8;
     border: 6.0vmin solid;
@@ -43,12 +44,14 @@ canvas {
 }
 
 #txt {
+    display: block;
     font-family: GSC;
-    font-size: 5.0vmin;
-    margin-top: 4%;
-    margin-right: 2%; 
+    font-size: 5.2vmin;
+    margin-top: 4.8%;
+    margin-right: 2%;
     line-height: 1.7;
     color: black;
+    height: 100%;
 }
 
 .char {

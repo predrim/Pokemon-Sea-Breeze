@@ -44,7 +44,7 @@ async function initGame() {
     // Warp Callback
     const handleWarp = async (warpLocation, spawnPosition) => {
         const newMapData = await assetLoader.loadMap(maps[warpLocation]);
-        mapConfig = newMapData;
+        let mapConfig = newMapData;
         mapConfig.onWarp = handleWarp;
         currentScene = new OverworldScene(mapConfig, spawnPosition);
     };
@@ -85,7 +85,7 @@ window.addEventListener('keydown', (e) => {
                 if (currentScene.canClose) {
                     currentScene.closeDialogue();
                 }
-            } else if (currentScene && currentScene.checkForInteraction) {
+            } else if (currentScene.state === "IDLE" && currentScene.checkForInteraction) {
                 currentScene.checkForInteraction();
             }
             break;

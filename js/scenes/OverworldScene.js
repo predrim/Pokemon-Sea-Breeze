@@ -1,6 +1,6 @@
 import { Sprite } from "../classes/Sprite.js";
 import { makeBoundaries, copyRows } from "../core/utils.js";
-import { TILE_SIZE, CANVAS_SIZE, WORLD_SCALE} from "../core/globalConfig.js";
+import { TILE_SIZE, CANVAS_SIZE, WORLD_SCALE } from "../core/globalConfig.js";
 import { Camera } from "../classes/Camera.js";
 import { Dialogue } from "../classes/Dialogue.js";
 
@@ -40,21 +40,21 @@ export class OverworldScene {
         this.state = PLAYER_STATE.IDLE;
 
         // --- 4. SPRITES & OBJECTS ---
-        this.background = new Sprite ({
-            position: { x: 0, y: 0},
+        this.background = new Sprite({
+            position: { x: 0, y: 0 },
             image: image,
             scale: WORLD_SCALE
         });
-        
+
         this.foreground = new Sprite({
-            position: { x: 0, y: 0},
+            position: { x: 0, y: 0 },
             image: foregroundImage,
             scale: WORLD_SCALE
         });
-        
+
         this.player = new Sprite({
             position: {
-                x: (this.currentTile.x) * this.tileSize, 
+                x: (this.currentTile.x) * this.tileSize,
                 y: (this.currentTile.y) * this.tileSize,
             },
             image: playerImage,
@@ -66,7 +66,7 @@ export class OverworldScene {
         // --- 5. CAMERA SETUP ---
         this.camera = new Camera(CANVAS_SIZE);
         this.camera.setTarget(this.player);
-        
+
         // --- 6. BOUNDARIES ---
         const collisionRows = [];
         copyRows(collisionRows, config.collisions || [], this.mapWidth);
@@ -84,8 +84,8 @@ export class OverworldScene {
         this.warpPoints = config.warpPoints || {};
         const warpRows = [];
         copyRows(warpRows, config.warps || [], this.mapWidth);
-        this.warpBoundaries = makeBoundaries(warpRows);
-        
+        this.warpGrid = warpRows;
+
         // --- 7. DIALOGUE ---
         this.txtBoxElement = document.getElementById('txt-box');
         this.txtElement = document.getElementById('txt');
@@ -95,7 +95,7 @@ export class OverworldScene {
     //    MAIN METHODS
     // ==================
 
-    draw(ctx) {  
+    draw(ctx) {
         this.camera.update(this.tileSize);
         this.camera.begin(ctx);
 
@@ -105,7 +105,6 @@ export class OverworldScene {
 
         // These are for testing and debugging.
         //this.collisionBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(255,0,0,0.3)')});
-        //this.warpBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(100,0,255,0.3)')});
         //this.interactionBoundaries.forEach((boundary) => {boundary.draw(ctx, 'rgba(255,255,0,0.3)')});
 
         this.camera.end(ctx);
@@ -153,13 +152,13 @@ export class OverworldScene {
         // Sets player's target tile based on what key was pressed
         if (this.state === PLAYER_STATE.IDLE) {
             if (keys.w.pressed) {
-                this.moveInDirection('w', 3, 0, 1);
+                this.moveInDirection('w', 3, 0, -1);
             } else if (keys.a.pressed) {
-                this.moveInDirection('a', 1, 1, 0);
+                this.moveInDirection('a', 1, -1, 0);
             } else if (keys.s.pressed) {
-                this.moveInDirection('s', 0, 0, -1);
+                this.moveInDirection('s', 0, 0, 1);
             } else if (keys.d.pressed) {
-                this.moveInDirection('d', 2, -1, 0);
+                this.moveInDirection('d', 2, 1, 0);
             }
         }
     }
@@ -173,15 +172,16 @@ export class OverworldScene {
         this.lastKey = key;
         this.player.frameV = frameV;
         this.attemptMove(moveX, moveY);
-        this.checkForWarp(moveX, moveY);
     }
-
+    
     // Resets flags after completing a step
     finishMovement(deltaX, deltaY) {
         this.state = PLAYER_STATE.IDLE;
         this.currentTile.x += deltaX;
         this.currentTile.y += deltaY;
+        
         this.checkForEncounter();
+        this.checkForWarp();
     }
 
     // Logic to check collisions and set the target coordinate
@@ -190,12 +190,12 @@ export class OverworldScene {
 
         // Player hitbox (smaller than sprite for collision accuracy)
         const hitbox = {
-        position: {
-            x: this.player.position.x + 16,
-            y: this.player.position.y + 16
-        },
-        width: 32,
-        height: 32
+            position: {
+                x: this.player.position.x + 16,
+                y: this.player.position.y + 16
+            },
+            width: 32,
+            height: 32
         }
 
         // Check Collisions
@@ -204,8 +204,8 @@ export class OverworldScene {
 
             // Predict where the boundary will be if we move
             const predictBoundaryPos = {
-                x: boundary.position.x + (moveX * this.tileSize),
-                y: boundary.position.y + (moveY * this.tileSize)
+                x: boundary.position.x - (moveX * this.tileSize),
+                y: boundary.position.y - (moveY * this.tileSize)
             };
 
             if (this.rectangularCollision({
@@ -220,45 +220,30 @@ export class OverworldScene {
         // Set Move Targets if clear
         if (canMoveDir) {
             this.state = PLAYER_STATE.MOVING;
-            this.targetX = this.player.position.x - (moveX * this.tileSize);
-            this.targetY = this.player.position.y - (moveY * this.tileSize);
+            this.targetX = this.player.position.x + (moveX * this.tileSize);
+            this.targetY = this.player.position.y + (moveY * this.tileSize);
         }
     }
 
-    checkForWarp(moveX, moveY) {
-        const hitbox = {
-        position: {
-            x: this.player.position.x + 16,
-            y: this.player.position.y + 16
-        },
-        width: 32,
-        height: 32
-        }
+    checkForWarp() {
+        // Look at the specific row in the 2D array the player is standing on
+        const row = this.warpGrid[this.currentTile.y];
+        if (!row) return; // For if the player walks out of bounds
 
-        // Check Collisions
-        for (let i = 0; i < this.warpBoundaries.length; i++) {
-            const boundary = this.warpBoundaries[i];
-
-            const predictBoundaryPos = {
-                x: boundary.position.x + (moveX * this.tileSize),
-                y: boundary.position.y + (moveY * this.tileSize)
-            };
-
-            if (this.rectangularCollision({
-                rectangle1: hitbox,
-                rectangle2: { ...boundary, position: predictBoundaryPos }
-            })) {
-                const warpLocation = this.warpPoints[boundary.symbol].location;
-                const spawnPosition = this.warpPoints[boundary.symbol].coordinates;
-                this.onWarp(warpLocation, spawnPosition);
-                break;
+        // Look at the specific column
+        const symbol = row[this.currentTile.x]
+        
+        if (symbol !== 0) {
+            const warpData = this.warpPoints[symbol];
+            if (warpData) {
+                this.onWarp(warpData.location, warpData.coordinates);
             }
         }
     }
 
     async checkForInteraction() {
         const interactionHitbox = {
-        position: {
+            position: {
                 x: this.player.position.x + 16,
                 y: this.player.position.y + 16
             },
@@ -283,7 +268,6 @@ export class OverworldScene {
                 const text = this.dialogues[boundary.symbol];
 
                 if (text && this.state === PLAYER_STATE.IDLE) {
-                    console.log("Dialogue Found: ", text);
                     this.state = PLAYER_STATE.TALKING;
                     this.canClose = false;
                     this.txtBoxElement.style.display = 'block';
